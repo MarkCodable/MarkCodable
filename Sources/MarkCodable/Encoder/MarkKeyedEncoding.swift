@@ -100,7 +100,7 @@ struct MarkKeyedEncoding<Key: CodingKey>: KeyedEncodingContainerProtocol {
     }
 
     mutating func nestedUnkeyedContainer(forKey key: Key) -> UnkeyedEncodingContainer {
-        fatalError()
+        return MarkUnkeyedEncoding(codingPath: codingPath + [key], userInfo: userInfo, to: data)
     }
 
     mutating func superEncoder() -> Encoder {

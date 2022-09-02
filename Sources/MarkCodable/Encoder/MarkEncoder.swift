@@ -43,7 +43,7 @@ public class MarkEncoder {
             var uniqueKeys = Set<String>()
 
             for value in collection {
-                let encoding = MarkEncoding(userInfo: userInfo, to: .init())
+                let encoding = MarkEncoding(codingPath: [], userInfo: userInfo, to: .init())
                 if let codableValue = value as? Encodable {
                     try codableValue.encode(to: encoding)
                 }
@@ -52,7 +52,7 @@ public class MarkEncoder {
             }
             keys = uniqueKeys.sorted()
         } else {
-            let encoding = MarkEncoding(userInfo: userInfo, to: .init())
+            let encoding = MarkEncoding(codingPath: [], userInfo: userInfo, to: .init())
             try value.encode(to: encoding)
             keys = encoding.data.values.keys.sorted()
             values = [encoding.data.values]

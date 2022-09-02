@@ -74,3 +74,12 @@ struct AllTheInts: Codable, Equatable {
     var uint32: UInt32
     var uint64: UInt64
 }
+
+struct Lists: Codable, Equatable {
+    var ints: [Int]
+    var strings: [String]
+    var bools: [Bool]
+    var optionalBools: [Bool?]
+    var blogs: [Blog]
+    var nestedList: [[Int]]
+}

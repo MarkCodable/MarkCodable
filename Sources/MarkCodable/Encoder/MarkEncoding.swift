@@ -8,29 +8,27 @@
 import Foundation
 
 struct MarkEncoding: Encoder {
-
     let codingPath: CodingPath
     private(set) var userInfo: UserInfo
 
     var data: CodingData
 
-    init(codingPath: CodingPath = [], userInfo: UserInfo, to data: CodingData) {
+    init(codingPath: CodingPath, userInfo: UserInfo, to data: CodingData) {
         self.codingPath = codingPath
         self.userInfo = userInfo
         self.data = data
     }
 
     func container<Key: CodingKey>(keyedBy type: Key.Type) -> KeyedEncodingContainer<Key> {
-        let container = MarkKeyedEncoding<Key>(codingPath: codingPath, userInfo: userInfo, to: data)
-        return KeyedEncodingContainer(container)
+        return KeyedEncodingContainer(MarkKeyedEncoding<Key>(codingPath: codingPath, userInfo: userInfo, to: data))
     }
 
     func unkeyedContainer() -> UnkeyedEncodingContainer {
-        fatalError()
+        return MarkUnkeyedEncoding(codingPath: codingPath, userInfo: userInfo, to: data)
     }
 
     func singleValueContainer() -> SingleValueEncodingContainer {
-        fatalError()
+        return MarkSingleValueEncoding(codingPath: codingPath, userInfo: userInfo, to: data)
     }
 }
 
