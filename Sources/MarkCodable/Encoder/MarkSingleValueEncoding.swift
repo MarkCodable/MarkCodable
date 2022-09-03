@@ -79,6 +79,7 @@ struct MarkSingleValueEncoding: SingleValueEncodingContainer {
     }
 
     // TODO: Extract this logic into a reusable function
+    // https://github.com/icanzilb/MarkCodable/issues/10
     mutating func encode<T>(_ value: T) throws where T : Encodable {
         let markEncoding = MarkEncoding(codingPath: codingPath, userInfo: userInfo, to: data)
 

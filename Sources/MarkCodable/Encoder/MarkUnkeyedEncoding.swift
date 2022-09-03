@@ -97,13 +97,13 @@ struct MarkUnkeyedEncoding: UnkeyedEncodingContainer {
     }
 
     mutating func nestedContainer<NestedKey>(keyedBy keyType: NestedKey.Type) -> KeyedEncodingContainer<NestedKey> where NestedKey : CodingKey {
-        // TODO: nested containers in lists, unsupported
-        fatalError()
+        // Nesting containers isn't supported by MarkCodable.
+        fatalError("Nesting containers isn't supported")
     }
 
     mutating func nestedUnkeyedContainer() -> UnkeyedEncodingContainer {
-        // TODO: list in list, unsupported
-        fatalError()
+        // Nesting lists isn't supported by MarkCodable.
+        fatalError("Nesting lists isn't supported")
     }
 
     mutating func superEncoder() -> Encoder {

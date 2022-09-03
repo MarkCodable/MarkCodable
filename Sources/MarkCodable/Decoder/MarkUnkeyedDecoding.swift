@@ -89,12 +89,12 @@ struct MarkUnkeyedDecoding: UnkeyedDecodingContainer {
     }
 
     mutating func nestedContainer<NestedKey>(keyedBy type: NestedKey.Type) throws -> KeyedDecodingContainer<NestedKey> where NestedKey : CodingKey {
-        // TODO: nested containers in lists, unsupported
+        // Nesting containers isn't supported and this code path can't be hit.
         fatalError()
     }
 
     mutating func nestedUnkeyedContainer() throws -> UnkeyedDecodingContainer {
-        // TODO: nested lists in lists, unsupported
+        // Nesting lists isn't supported and this code path can't be hit.
         fatalError()
     }
 

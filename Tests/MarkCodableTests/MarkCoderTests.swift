@@ -106,6 +106,7 @@ final class MarkCoderTests: XCTestCase {
         """)
 
         // TODO: the encoder produces an invalid markdown table
+        // https://github.com/icanzilb/MarkCodable/issues/1
         // let decoded2 = try decoder.decode([OptionalHouse].self, string: encoded2)
         // XCTAssertEqual(decoded2, [optional])
 

@@ -47,7 +47,6 @@ struct MarkSingleValueDecoding: SingleValueDecodingContainer {
         default: break
         }
 
-        // TODO: Is this even correct?
         let decoding = MarkDecoding(codingPath: codingPath, userInfo: userInfo, from: [codingPath.map(\.stringValue).joined(separator: "."): value])
         return try T.init(from: decoding)
     }
