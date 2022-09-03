@@ -22,7 +22,7 @@ struct MarkUnkeyedEncoding: UnkeyedEncodingContainer {
     }
 
     mutating func encodeNil() throws {
-        data.encode(key: codingPath, value: "")
+        data.encode(key: codingPath, value: "nil")
     }
 
     mutating func encode(_ value: Bool) throws {
@@ -99,17 +99,11 @@ struct MarkUnkeyedEncoding: UnkeyedEncodingContainer {
     mutating func nestedContainer<NestedKey>(keyedBy keyType: NestedKey.Type) -> KeyedEncodingContainer<NestedKey> where NestedKey : CodingKey {
         // TODO: nested containers in lists, unsupported
         fatalError()
-//        print("coding path: \(codingPath)")
-//        print(NestedKey.self)
-//        let container = MarkKeyedEncoding<NestedKey>(codingPath: codingPath, userInfo: userInfo, to: data)
-//        return KeyedEncodingContainer(container)
     }
 
     mutating func nestedUnkeyedContainer() -> UnkeyedEncodingContainer {
         // TODO: list in list, unsupported
         fatalError()
-//        let container = MarkUnkeyedEncoding(codingPath: codingPath, userInfo: userInfo, to: data)
-//        return container
     }
 
     mutating func superEncoder() -> Encoder {

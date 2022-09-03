@@ -51,7 +51,8 @@ struct MarkKeyedDecoding<Key: CodingKey>: KeyedDecodingContainerProtocol {
         }
 
         if type is any Collection.Type {
-            let decoding = MarkDecoding(codingPath: codingPath + [key], userInfo: userInfo, from: data)
+            let nestedKey = codingPath + [key]
+            let decoding = MarkDecoding(codingPath: nestedKey, userInfo: userInfo, from: data)
             return try T.init(from: decoding)
         } else {
             var nestedData: [String: String] = [:]
@@ -79,7 +80,9 @@ struct MarkKeyedDecoding<Key: CodingKey>: KeyedDecodingContainerProtocol {
               let value = optionalValue else {
             throw DecodingError.keyNotFound(nestedPath.last!, DecodingError.Context(codingPath: nestedPath, debugDescription: "No value for \(nestedPath.absoluteString)"))
         }
-        return MarkUnkeyedDecoding(codingPath: codingPath, userInfo: userInfo, from: value.components(separatedBy: ","), topLevelValues: data)
+
+        let list = value.isEmpty ? [] : value.components(separatedBy: ",")
+        return MarkUnkeyedDecoding(codingPath: codingPath, userInfo: userInfo, from: list, topLevelValues: data)
     }
 
     func superDecoder() throws -> Decoder {

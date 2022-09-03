@@ -71,7 +71,6 @@ struct MarkUnkeyedDecoding: UnkeyedDecodingContainer {
         default: break
         }
 
-        // TODO: Is this even correct?
         let decoding = MarkDecoding(codingPath: codingPath, userInfo: userInfo, from: [codingPath.map(\.stringValue).joined(separator: "."): values[currentIndex]])
         let result = try T.init(from: decoding)
         currentIndex += 1

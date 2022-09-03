@@ -106,9 +106,14 @@ enum Permission: Codable {
 }
 
 struct Lists: Codable, Equatable {
-    var ints: [Int]
+    var ints: [Int]?
     var strings: [String]
     var bools: [Bool]
     var optionalBools: [Bool?]
     var custom: [Permission]
+    var urls: [URL]? = nil
+}
+
+struct ListContainer<T: Codable>: Codable {
+    let numbers: Array<T>
 }

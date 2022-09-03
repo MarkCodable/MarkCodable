@@ -19,7 +19,7 @@ struct MarkSingleValueDecoding: SingleValueDecodingContainer {
     }
 
     func decodeNil() -> Bool {
-        return value.trimmingCharacters(in: .whitespaces).isEmpty
+        return value == "nil"
     }
 
     func decode(_ type: Bool.Type) throws -> Bool { try unbox() }
@@ -56,7 +56,6 @@ struct MarkSingleValueDecoding: SingleValueDecodingContainer {
         guard let result = T(value) else {
             throw DecodingError.typeMismatch(T.self, DecodingError.Context(codingPath: codingPath, debugDescription: "Expected \(T.self) value at \(codingPath)"))
         }
-        print("decoded value '\(result)'")
         return result
     }
 }

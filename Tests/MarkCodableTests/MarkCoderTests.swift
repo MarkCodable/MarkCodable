@@ -195,8 +195,30 @@ final class MarkCoderTests: XCTestCase {
         XCTAssertEqual(decoded, ints)
     }
 
+    func testEmptyLists() throws {
+        let encoder = MarkEncoder()
+        let decoder = MarkDecoder()
+
+        let lists = Lists(
+            ints: nil,
+            strings: [],
+            bools: [],
+            optionalBools: [nil],
+            custom: []
+        )
+
+        let encoded = try encoder.encode([lists])
+        XCTAssertEqual(encoded, """
+        |bools|custom|optionalBools|strings|
+        |-----|------|-------------|-------|
+        |     |      |nil          |       |
+        """)
+
+        let decoded = try decoder.decode(Lists.self, string: encoded)
+        XCTAssertEqual(decoded, lists)
+    }
+
     func testLists() throws {
-        // TODO: test empty lists
         let encoder = MarkEncoder()
         let decoder = MarkDecoder()
 
@@ -205,17 +227,94 @@ final class MarkCoderTests: XCTestCase {
             strings: ["a", "W", "house"],
             bools: [true, true],
             optionalBools: [false, nil],
-            custom: [.read, .execute]
+            custom: [.read, .execute],
+            urls: [URL(string: "https://host")!]
         )
 
         let encoded = try encoder.encode([lists])
         XCTAssertEqual(encoded, """
-        |bools    |custom      |ints    |optionalBools|strings  |
-        |---------|------------|--------|-------------|---------|
-        |true,true|read,execute|-1,40,50|false,       |a,W,house|
+        |bools    |custom      |ints    |optionalBools|strings  |urls        |
+        |---------|------------|--------|-------------|---------|------------|
+        |true,true|read,execute|-1,40,50|false,nil    |a,W,house|https://host|
         """)
 
         let decoded = try decoder.decode(Lists.self, string: encoded)
         XCTAssertEqual(decoded, lists)
+    }
+
+    func testAllTheIntsInLists() throws {
+        let oneMarkdown = """
+        |numbers|
+        |-------|
+        |1      |
+        """
+
+        let encoder = MarkEncoder()
+        let decoder = MarkDecoder()
+
+        XCTAssertEqual(oneMarkdown, try encoder.encode(ListContainer<Int>(numbers: [1])))
+        XCTAssertEqual([1], try decoder.decode(ListContainer<Int>.self, string: oneMarkdown).numbers)
+
+        XCTAssertEqual(oneMarkdown, try encoder.encode(ListContainer<Int8>(numbers: [1])))
+        XCTAssertEqual([1], try decoder.decode(ListContainer<Int8>.self, string: oneMarkdown).numbers)
+
+        XCTAssertEqual(oneMarkdown, try encoder.encode(ListContainer<Int16>(numbers: [1])))
+        XCTAssertEqual([1], try decoder.decode(ListContainer<Int16>.self, string: oneMarkdown).numbers)
+
+        XCTAssertEqual(oneMarkdown, try encoder.encode(ListContainer<Int32>(numbers: [1])))
+        XCTAssertEqual([1], try decoder.decode(ListContainer<Int32>.self, string: oneMarkdown).numbers)
+
+        XCTAssertEqual(oneMarkdown, try encoder.encode(ListContainer<Int64>(numbers: [1])))
+        XCTAssertEqual([1], try decoder.decode(ListContainer<Int64>.self, string: oneMarkdown).numbers)
+
+        XCTAssertEqual(oneMarkdown, try encoder.encode(ListContainer<UInt>(numbers: [1])))
+        XCTAssertEqual([1], try decoder.decode(ListContainer<UInt>.self, string: oneMarkdown).numbers)
+
+        XCTAssertEqual(oneMarkdown, try encoder.encode(ListContainer<UInt8>(numbers: [1])))
+        XCTAssertEqual([1], try decoder.decode(ListContainer<UInt8>.self, string: oneMarkdown).numbers)
+
+        XCTAssertEqual(oneMarkdown, try encoder.encode(ListContainer<UInt16>(numbers: [1])))
+        XCTAssertEqual([1], try decoder.decode(ListContainer<UInt16>.self, string: oneMarkdown).numbers)
+
+        XCTAssertEqual(oneMarkdown, try encoder.encode(ListContainer<UInt32>(numbers: [1])))
+        XCTAssertEqual([1], try decoder.decode(ListContainer<UInt32>.self, string: oneMarkdown).numbers)
+
+        XCTAssertEqual(oneMarkdown, try encoder.encode(ListContainer<UInt64>(numbers: [1])))
+        XCTAssertEqual([1], try decoder.decode(ListContainer<UInt64>.self, string: oneMarkdown).numbers)
+    }
+
+    func testFloatNumbersInLists() throws {
+        let oneMarkdown = """
+        |numbers|
+        |-------|
+        |1.0    |
+        """
+
+        let encoder = MarkEncoder()
+        let decoder = MarkDecoder()
+
+        XCTAssertEqual(oneMarkdown, try encoder.encode(ListContainer<Double>(numbers: [1])))
+        XCTAssertEqual([1.0], try decoder.decode(ListContainer<Double>.self, string: oneMarkdown).numbers)
+
+        XCTAssertEqual(oneMarkdown, try encoder.encode(ListContainer<Float>(numbers: [1])))
+        XCTAssertEqual([1.0], try decoder.decode(ListContainer<Float>.self, string: oneMarkdown).numbers)
+    }
+
+    func testListSingleEmptyString() throws {
+        let markdown = """
+        |string|
+        |------|
+        |      |
+        """
+
+        let encoder = MarkEncoder()
+        let decoder = MarkDecoder()
+
+        struct SingleString: Codable, Equatable {
+            var string: String
+        }
+        let value = SingleString(string: "")
+        XCTAssertEqual(markdown, try encoder.encode(value))
+        XCTAssertEqual(value, try decoder.decode(SingleString.self, string: markdown))
     }
 }

@@ -24,6 +24,9 @@ struct MarkEncoding: Encoder {
     }
 
     func unkeyedContainer() -> UnkeyedEncodingContainer {
+        // This line adds an empty string to the cell, so in case the collection is empty
+        // we still have a column created in the markdown table.
+        data.encode(key: codingPath, value: CodingData.listPlaceholder)
         return MarkUnkeyedEncoding(codingPath: codingPath, userInfo: userInfo, to: data)
     }
 

@@ -24,11 +24,16 @@ struct MarkDecoding: Decoder {
     }
 
     func unkeyedContainer() throws -> UnkeyedDecodingContainer {
-        guard let optionalValue = data[codingPath.absoluteString],
-              let value = optionalValue else {
-            throw DecodingError.keyNotFound(codingPath.last!, DecodingError.Context(codingPath: codingPath, debugDescription: "No value for \(codingPath)"))
+        let value: String
+        if let optionalValue = data[codingPath.absoluteString],
+              let unwrappedValue = optionalValue {
+            value = unwrappedValue
+        } else {
+            value = ""
         }
-        return MarkUnkeyedDecoding(codingPath: codingPath, userInfo: userInfo, from: value.components(separatedBy: ","), topLevelValues: data)
+
+        let list = value.isEmpty ? [] : value.components(separatedBy: ",")
+        return MarkUnkeyedDecoding(codingPath: codingPath, userInfo: userInfo, from: list, topLevelValues: data)
     }
 
     func singleValueContainer() throws -> SingleValueDecodingContainer {

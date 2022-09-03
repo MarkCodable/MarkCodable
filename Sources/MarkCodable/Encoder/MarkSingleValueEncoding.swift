@@ -19,7 +19,7 @@ struct MarkSingleValueEncoding: SingleValueEncodingContainer {
     }
 
     mutating func encodeNil() throws {
-        data.encode(key: codingPath, value: "")
+        data.encode(key: codingPath, value: "nil")
     }
 
     mutating func encode(_ value: Bool) throws {

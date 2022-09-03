@@ -16,23 +16,38 @@ extension CodingPath {
     var absoluteString: String { map(\.stringValue).joined(separator: ".") }
 }
 
+typealias Appending = Bool
+
 final class CodingData {
     private(set) var values = CodingValues()
-    var isAppendingContainer: [Bool] = [false]
+    var isAppendingContainer: [Appending] = [false]
+    var isHoldingListPlaceholder = false
+    static let listPlaceholder = "ListPlaceholder"
 
     func encode(key codingKey: CodingPath, value: String, appending: Bool = false) {
         //print("Encode \(type(of: value)) for key(\(codingKey.count)) \(codingKey.map{"\($0)"}.joined(separator: "."))")
 
-        let key = codingKey.map { $0.stringValue }.joined(separator: ".")
-        if values.keys.contains(key) && (appending || isAppendingContainer.last!) {
-            values[key]!! += "," + value
+        if isHoldingListPlaceholder && value != Self.listPlaceholder {
+            isHoldingListPlaceholder = false
+            values[codingKey.absoluteString] = value
+            return
+        }
+
+        if value == Self.listPlaceholder {
+            isHoldingListPlaceholder = true
+            values[codingKey.absoluteString] = ""
+            return
+        }
+
+        if values.keys.contains(codingKey.absoluteString) && (appending || isAppendingContainer.last!) {
+            values[codingKey.absoluteString]!! += "," + value
         } else {
-            values[key] = value
+            values[codingKey.absoluteString] = value
         }
     }
 }
 
-extension Array where Element == Bool {
+extension Array<Appending> {
     mutating func push(_ value: Element) { append(value) }
     mutating func pop() { removeLast() }
 }
