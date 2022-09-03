@@ -8,12 +8,6 @@
 import Foundation
 import MarkCodable
 
-class ListTest: Codable {
-    var ids = [1, 2, 3]
-}
-print(try MarkEncoder().encode(ListTest()))
-exit(0)
-
 /// Test data model
 struct House: Codable {
     var isSocial = true

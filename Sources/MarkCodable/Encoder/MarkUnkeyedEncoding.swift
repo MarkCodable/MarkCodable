@@ -7,18 +7,6 @@
 
 import Foundation
 
-//struct IndexCodingKey: CodingKey {
-//    let intValue: Int?
-//    let stringValue: String
-//
-//    init?(intValue: Int) {
-//        self.intValue = intValue
-//        self.stringValue = String(intValue)
-//    }
-//
-//    init?(stringValue: String) { fatalError() }
-//}
-
 struct MarkUnkeyedEncoding: UnkeyedEncodingContainer {
     private(set) var codingPath: CodingPath
     var userInfo = UserInfo()
@@ -109,13 +97,19 @@ struct MarkUnkeyedEncoding: UnkeyedEncodingContainer {
     }
 
     mutating func nestedContainer<NestedKey>(keyedBy keyType: NestedKey.Type) -> KeyedEncodingContainer<NestedKey> where NestedKey : CodingKey {
-        let container = MarkKeyedEncoding<NestedKey>(codingPath: codingPath, userInfo: userInfo, to: data)
-        return KeyedEncodingContainer(container)
+        // TODO: nested containers in lists, unsupported
+        fatalError()
+//        print("coding path: \(codingPath)")
+//        print(NestedKey.self)
+//        let container = MarkKeyedEncoding<NestedKey>(codingPath: codingPath, userInfo: userInfo, to: data)
+//        return KeyedEncodingContainer(container)
     }
 
     mutating func nestedUnkeyedContainer() -> UnkeyedEncodingContainer {
-        let container = MarkUnkeyedEncoding(codingPath: codingPath, userInfo: userInfo, to: data)
-        return container
+        // TODO: list in list, unsupported
+        fatalError()
+//        let container = MarkUnkeyedEncoding(codingPath: codingPath, userInfo: userInfo, to: data)
+//        return container
     }
 
     mutating func superEncoder() -> Encoder {

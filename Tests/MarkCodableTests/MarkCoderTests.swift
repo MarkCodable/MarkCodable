@@ -205,22 +205,14 @@ final class MarkCoderTests: XCTestCase {
             strings: ["a", "W", "house"],
             bools: [true, true],
             optionalBools: [false, nil],
-            blogs: [
-                Blog(address: URL(string: "https://host")!, pageNotFound: URL(string: "https://host/404")!),
-                Blog(address: URL(string: "http://most")!, pageNotFound: URL(string: "http://most/404")!)
-            ],
-            nestedList: [
-                [1, 2, 3],
-                [4, 5, 6],
-                [7, 8, 9]
-            ]
+            custom: [.read, .execute]
         )
 
         let encoded = try encoder.encode([lists])
         XCTAssertEqual(encoded, """
-        |blogs.address           |blogs.pageNotFound              |bools    |ints    |nestedList       |optionalBools|strings  |
-        |------------------------|--------------------------------|---------|--------|-----------------|-------------|---------|
-        |https://host,http://most|https://host/404,http://most/404|true,true|-1,40,50|1,2,3,4,5,6,7,8,9|false,       |a,W,house|
+        |bools    |custom      |ints    |optionalBools|strings  |
+        |---------|------------|--------|-------------|---------|
+        |true,true|read,execute|-1,40,50|false,       |a,W,house|
         """)
 
         let decoded = try decoder.decode(Lists.self, string: encoded)

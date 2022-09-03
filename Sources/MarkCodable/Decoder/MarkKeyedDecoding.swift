@@ -50,17 +50,22 @@ struct MarkKeyedDecoding<Key: CodingKey>: KeyedDecodingContainerProtocol {
         default: break
         }
 
-        var nestedData: [String: String] = [:]
-        let nestedPrefix = key.stringValue + "."
+        if type is any Collection.Type {
+            let decoding = MarkDecoding(codingPath: codingPath + [key], userInfo: userInfo, from: data)
+            return try T.init(from: decoding)
+        } else {
+            var nestedData: [String: String] = [:]
+            let nestedPrefix = key.stringValue + "."
 
-        for (dataKey, value) in data where dataKey.hasPrefix(nestedPrefix) {
-            let nestedKey = dataKey.dropFirst(nestedPrefix.count)
-            if !nestedKey.isEmpty {
-                nestedData[String(nestedKey)] = value
+            for (dataKey, value) in data where dataKey.hasPrefix(nestedPrefix) {
+                let nestedKey = dataKey.dropFirst(nestedPrefix.count)
+                if !nestedKey.isEmpty {
+                    nestedData[String(nestedKey)] = value
+                }
             }
+            let decoding = MarkDecoding(codingPath: codingPath + [key], userInfo: userInfo, from: nestedData)
+            return try T.init(from: decoding)
         }
-        let decoding = MarkDecoding(codingPath: codingPath + [key], userInfo: userInfo, from: nestedData)
-        return try T.init(from: decoding)
     }
 
     func nestedContainer<NestedKey>(keyedBy type: NestedKey.Type, forKey key: Key) throws -> KeyedDecodingContainer<NestedKey> where NestedKey : CodingKey {
@@ -69,7 +74,12 @@ struct MarkKeyedDecoding<Key: CodingKey>: KeyedDecodingContainerProtocol {
     }
 
     func nestedUnkeyedContainer(forKey key: Key) throws -> UnkeyedDecodingContainer {
-        fatalError()
+        let nestedPath = codingPath + [key]
+        guard let optionalValue = data[nestedPath.absoluteString],
+              let value = optionalValue else {
+            throw DecodingError.keyNotFound(nestedPath.last!, DecodingError.Context(codingPath: nestedPath, debugDescription: "No value for \(nestedPath.absoluteString)"))
+        }
+        return MarkUnkeyedDecoding(codingPath: codingPath, userInfo: userInfo, from: value.components(separatedBy: ","), topLevelValues: data)
     }
 
     func superDecoder() throws -> Decoder {

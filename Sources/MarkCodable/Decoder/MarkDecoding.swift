@@ -24,10 +24,18 @@ struct MarkDecoding: Decoder {
     }
 
     func unkeyedContainer() throws -> UnkeyedDecodingContainer {
-        throw MarkDecoder.MarkDecodingError.unsupportedFormat("Unexpected collection value at key \(codingPath)")
+        guard let optionalValue = data[codingPath.absoluteString],
+              let value = optionalValue else {
+            throw DecodingError.keyNotFound(codingPath.last!, DecodingError.Context(codingPath: codingPath, debugDescription: "No value for \(codingPath)"))
+        }
+        return MarkUnkeyedDecoding(codingPath: codingPath, userInfo: userInfo, from: value.components(separatedBy: ","), topLevelValues: data)
     }
 
     func singleValueContainer() throws -> SingleValueDecodingContainer {
-        throw MarkDecoder.MarkDecodingError.unsupportedFormat("Unexpected value at key \(codingPath)")
+        guard let optionalValue = data[codingPath.absoluteString],
+              let value = optionalValue else {
+            throw DecodingError.keyNotFound(codingPath.last!, DecodingError.Context(codingPath: codingPath, debugDescription: "No value for \(codingPath)"))
+        }
+        return MarkSingleValueDecoding(codingPath: codingPath, userInfo: userInfo, value: value)
     }
 }

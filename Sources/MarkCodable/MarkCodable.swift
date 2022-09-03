@@ -12,6 +12,10 @@ public typealias UserInfo = [CodingUserInfoKey: Any]
 typealias CodingValues = [String: String?]
 typealias CodingPath = [CodingKey]
 
+extension CodingPath {
+    var absoluteString: String { map(\.stringValue).joined(separator: ".") }
+}
+
 final class CodingData {
     private(set) var values = CodingValues()
     var isAppendingContainer: [Bool] = [false]
