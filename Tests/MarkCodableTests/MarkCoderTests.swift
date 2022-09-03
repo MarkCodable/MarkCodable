@@ -10,6 +10,37 @@ final class MarkCoderTests: XCTestCase {
         XCTAssertTrue(decoder.userInfo.isEmpty)
     }
 
+    func testDecodeUnexpectedInput() {
+        let decoder = MarkDecoder()
+        let notMarkdown = "not markdown"
+
+        XCTAssertThrowsError(
+            try decoder.decode(House.self, string: notMarkdown),
+            "Expected to throw an error for unexpected input") { error in
+
+                guard case MarkDecoder.MarkDecodingError.unexpectedSourceFormat = error else {
+                    XCTFail("Unexpected error \(error) thrown")
+                    return
+                }
+            }
+
+        let wrongMarkdown = """
+        | amount |
+        |--------|
+        |123     |
+        """
+
+        XCTAssertThrowsError(
+            try decoder.decode(House.self, string: wrongMarkdown),
+            "Expected to throw an error for missing keys") { error in
+
+                guard case DecodingError.keyNotFound = error else {
+                    XCTFail("Unexpected error \(error) thrown")
+                    return
+                }
+            }
+    }
+
     func testCodingKeysDefaultTypes() throws {
         let encoder = MarkEncoder()
         let decoder = MarkDecoder()

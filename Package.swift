@@ -26,14 +26,12 @@ let package = Package(
     targets: [
         .executableTarget(
             name: "MarkTestApp",
-            dependencies: [
-                "MarkCodable"
-            ]),
+            dependencies: ["MarkCodable"]
+        ),
         .target(
             name: "MarkCodable",
-            dependencies: [
-                .product(name: "Markdown", package: "swift-markdown"),
-            ]),
+            dependencies: [.product(name: "Markdown", package: "swift-markdown")]
+        ),
         .testTarget(
             name: "MarkCodableTests",
             dependencies: ["MarkCodable"]

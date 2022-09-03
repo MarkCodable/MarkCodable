@@ -102,6 +102,10 @@ The package contains a target called `marktest` that showcases some demo code. R
 swift run marktest
 ```
 
+To see a demo of a full SwiftUI app using a GitHub hosted Markdown file as backend, check out [this repo](https://github.com/icanzilb/MarkCodingDemoApp).
+
+<img src="https://raw.githubusercontent.com/icanzilb/MarkCodingDemoApp/main/etc/app-screen.png" width=320>
+
 ## Credits
 
 MIT License, Marin Todorov (2022)
