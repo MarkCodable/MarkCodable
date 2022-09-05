@@ -63,7 +63,7 @@ public class MarkDecoder {
 
 private extension MarkDecoder {
     func decode<T: Decodable>(_ type: [T].Type, string: String, numberResults: Int) throws -> [T]  {
-        let document = Document(parsing: string, options: .disableSmartOpts)
+        let document = Document(parsing: string, options: [])
         guard let table = document.children.first(where: { markup in
             return markup is Table
         }) as? Table else {
