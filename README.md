@@ -4,7 +4,7 @@ Markdown Swift coding with an eye on human interaction.
 
 ## Overview
 
-MarkCodable encodes `Codable` values as Markdown text and decodes Markdown strings as Swift values. Markdown-representation allows humans to easily edit values by hand using their favorite text editor on any operating system or in a web interface.
+**MarkCodable** encodes `Codable` values as Markdown text and decodes Markdown strings as Swift values. Markdown-representation allows humans to easily edit values by hand using their favorite text editor on any operating system or in a web interface.
 
 JSON is flexible but either too compact or too verbose to edit meaningfully by hand:
 
@@ -25,7 +25,7 @@ Thus, for the smaller scope of encoding data in an edit-friendly format, Markdow
 
 ## Use cases
 
-You encode or decode `Codable` values as with any other decoder, bar some limitatations on nested data types:
+You encode or decode `Codable` values as with any other decoder, bar some limitations on nested data types:
 
 ```swift
 // Encode into a Markdown string
@@ -38,7 +38,7 @@ let houses = try MarkDecoder()
 
 ### Configuration
 
-Markdown is a viable alternative to json or yml files, especially for mulitple configuration entries like per-environment or per-domain configurations, for example:
+Markdown is a viable alternative to json or yml files, especially for multiple configuration entries like per-environment or per-domain configurations, for example:
 
 ```text
 | environment | host      | port | user | schema |
@@ -60,7 +60,7 @@ In unit tests you often times need a number of test objects to create the test s
 
 ### Database
 
-For simple relational data, using MarkCoding will allow you or your users to edit the data simply in any plain text editor. This is how a small podcast database might look like:
+For simple relational data, using `MarkCodable` will allow you or your users to simply edit the data in any plain text editor. This is how a small podcast database might look like:
 
 ```text
 Users.md:
@@ -76,12 +76,14 @@ Podcasts.md:
 |2          |Stacktrace       | 1,2   |
 ```
 
-Load the items by reading the files and decoding the values:
+Load the items by reading the files, decoding the values, and optionally store them as indexed dictionaries:
 
 ```swift
 let users = try MarkDecoder()
     .decode([User].self, string: String(contentsOfFile: "Users.md"))
     .reduce(into: [Int: User](), { $0[$1.id] = $1 })
+
+print(users[2]) // [userID: 2, name: Gui]
 ```
 
 ## Installation
@@ -96,13 +98,13 @@ dependencies: [
 
 ## Demo App
 
-The package contains a target called `marktest` that showcases some demo code. Run the demo from the package folder via:
+This package contains a target called `marktest` that showcases some demo code. Run that demo from the package folder via:
 
 ```text
 swift run marktest
 ```
 
-To see a demo of a full SwiftUI app using a GitHub hosted Markdown file as backend, check out [this repo](https://github.com/icanzilb/MarkCodingDemoApp).
+To see a demo of a full SwiftUI app (~70 lines of Swift) using a GitHub-hosted Markdown file as backend, check out [this repo](https://github.com/icanzilb/MarkCodingDemoApp).
 
 <img src="https://raw.githubusercontent.com/icanzilb/MarkCodingDemoApp/main/etc/app-screen.png" width=320>
 
