@@ -2,6 +2,8 @@
 
 Markdown Swift coding with an eye on human interaction.
 
+> This library is still in flux until we find together what's the best way to use markdown encoding, check the issues and/or leave some feedback.
+
 ## Overview
 
 **MarkCodable** encodes `Codable` values as Markdown text and decodes Markdown strings as Swift values. Markdown-representation allows humans to easily edit values by hand using their favorite text editor on any operating system or in a web interface.
