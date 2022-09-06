@@ -47,16 +47,7 @@ final class CodingData {
     }
 }
 
-#if compiler(>=5.7)
-extension Array<Appending> {
+extension Array where Element == Appending {
     mutating func push(_ value: Element) { append(value) }
     mutating func pop() { removeLast() }
 }
-#elseif compiler(>=5.6)
-extension Array where Element == Bool {
-    mutating func push(_ value: Element) { append(value) }
-    mutating func pop() { removeLast() }
-}
-#else
-fatalError("This version of MarkCodable requires Swift >= 5.6.")
-#endif
