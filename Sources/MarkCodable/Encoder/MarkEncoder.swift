@@ -25,39 +25,30 @@ import Markdown
 /// |true    |25    |EUR           |100400.0   |Main St.  |
 /// ```
 public class MarkEncoder {
-
+    
     /// Any user info to pass along to encoding containers.
     var userInfo = UserInfo()
-
+    
     /// Creates a new encoder instance.
     public init() { }
-
-    /// Returns a Markdown-encoded representation of the value you supply.
+    
+    /// Returns a Markdown-encoded representation of the collection value you supply.
     /// - Parameter value: The value to encode as Markdown.
     /// - Returns: The encoded Markdown text.
-    public func encode<T: Encodable>(_ value: T) throws -> String {
+    public func encode<T: Encodable>(_ collection: T) throws -> String where T: Collection, T.Element: Encodable {
         var keys = [String]()
         var values = [CodingValues]()
-
-        if let collection = value as? any Collection {
-            var uniqueKeys = Set<String>()
-
-            for value in collection {
-                let encoding = MarkEncoding(codingPath: [], userInfo: userInfo, to: .init())
-                if let codableValue = value as? Encodable {
-                    try codableValue.encode(to: encoding)
-                }
-                uniqueKeys = uniqueKeys.union(encoding.data.values.keys)
-                values.append(encoding.data.values)
-            }
-            keys = uniqueKeys.sorted()
-        } else {
+        
+        var uniqueKeys = Set<String>()
+        
+        for value in collection {
             let encoding = MarkEncoding(codingPath: [], userInfo: userInfo, to: .init())
             try value.encode(to: encoding)
-            keys = encoding.data.values.keys.sorted()
-            values = [encoding.data.values]
+            uniqueKeys = uniqueKeys.union(encoding.data.values.keys)
+            values.append(encoding.data.values)
         }
-
+        keys = uniqueKeys.sorted()
+        
         let table = Markdown.Table(
             header: Markdown.Table.Head(
                 keys.map { value -> Markdown.Table.Cell in
@@ -78,7 +69,43 @@ public class MarkEncoder {
                 })
             )
         )
-
+        
+        return table.format()
+    }
+    
+    /// Returns a Markdown-encoded representation of the value you supply.
+    /// - Parameter value: The value to encode as Markdown.
+    /// - Returns: The encoded Markdown text.
+    public func encode<T: Encodable>(_ value: T) throws -> String {
+        var keys = [String]()
+        var values = [CodingValues]()
+        
+        let encoding = MarkEncoding(codingPath: [], userInfo: userInfo, to: .init())
+        try value.encode(to: encoding)
+        keys = encoding.data.values.keys.sorted()
+        values = [encoding.data.values]
+        
+        let table = Markdown.Table(
+            header: Markdown.Table.Head(
+                keys.map { value -> Markdown.Table.Cell in
+                    Markdown.Table.Cell(Text(value))
+                }
+            ),
+            body: Markdown.Table.Body(
+                values.map({ row -> Markdown.Table.Row in
+                    Markdown.Table.Row(
+                        keys.map { key -> Markdown.Table.Cell in
+                            if let optionalValue = row[key], let value = optionalValue {
+                                return Markdown.Table.Cell(Text(value))
+                            } else {
+                                return Markdown.Table.Cell(Text(""))
+                            }
+                        }
+                    )
+                })
+            )
+        )
+        
         return table.format()
     }
 }
