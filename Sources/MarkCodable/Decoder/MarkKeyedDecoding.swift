@@ -80,7 +80,8 @@ struct MarkKeyedDecoding<Key: CodingKey>: KeyedDecodingContainerProtocol {
     }
 
     private func unbox<T: Decodable & StringInitializable>(_ key: Key) throws -> T {
-        guard let value = data[key.stringValue] else {
+        let nestedPath = codingPath + [key]
+        guard let value = data[nestedPath.absoluteString] else {
             throw DecodingError.keyNotFound(key, DecodingError.Context(codingPath: codingPath, debugDescription: "No value associated with key \(key) (\"\(key.stringValue)\")."))
         }
         guard let unwrappedValue = value else {
