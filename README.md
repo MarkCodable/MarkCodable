@@ -90,11 +90,13 @@ print(users[2]) // [userID: 2, name: Gui]
 
 ## Installation
 
-Use the package directly in Xcode or via SwiftPM:
+Use the package directly in Xcode or via SwiftPM.
+
+For the time being the package depends on `swift-markdown` which does not support semantic versioning and thus `MarkCodable` also doesn't support it: [issue #15](https://github.com/icanzilb/MarkCodable/issues/15).
 
 ```swift
 dependencies: [
-  .package(url: "https://github.com/icanzilb/MarkCodable", from: "0.6.0"),
+  .package(url: "https://github.com/icanzilb/MarkCodable", branch: "main"),
 ]
 ```
 
