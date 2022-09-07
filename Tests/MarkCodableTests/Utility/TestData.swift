@@ -59,3 +59,9 @@ let blog1 = Blog(
     address: URL(string: "https://daringfireball.net")!,
     pageNotFound: URL(string: "https://daringfireball.net/zxcglj/#fragment?param=1")!
 )
+
+// Animal Farm
+
+let animalFarm1 = AnimalFarm(
+  pig: .init(name: "Snowball")
+)

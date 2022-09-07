@@ -117,3 +117,11 @@ struct Lists: Codable, Equatable {
 struct ListContainer<T: Codable>: Codable {
     let numbers: Array<T>
 }
+
+struct AnimalFarm: Codable, Equatable {
+    let pig: Pig
+
+    struct Pig: Codable, Equatable {
+        let name: String
+    }
+}
