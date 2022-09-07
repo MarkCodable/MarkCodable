@@ -23,20 +23,9 @@ struct MarkKeyedDecoding<Key: CodingKey>: KeyedDecodingContainerProtocol {
         return value == ""
     }
 
-    func decode(_ type: Bool.Type, forKey key: Key) throws -> Bool { try unbox(key) }
-    func decode(_ type: String.Type, forKey key: Key) throws -> String { try unbox(key) }
-    func decode(_ type: Double.Type, forKey key: Key) throws -> Double { try unbox(key) }
-    func decode(_ type: Float.Type, forKey key: Key) throws -> Float { try unbox(key) }
-    func decode(_ type: Int.Type, forKey key: Key) throws -> Int { try unbox(key) }
-    func decode(_ type: Int8.Type, forKey key: Key) throws -> Int8 { try unbox(key) }
-    func decode(_ type: Int16.Type, forKey key: Key) throws -> Int16 { try unbox(key) }
-    func decode(_ type: Int32.Type, forKey key: Key) throws -> Int32 { try unbox(key) }
-    func decode(_ type: Int64.Type, forKey key: Key) throws -> Int64 { try unbox(key) }
-    func decode(_ type: UInt.Type, forKey key: Key) throws -> UInt { try unbox(key) }
-    func decode(_ type: UInt8.Type, forKey key: Key) throws -> UInt8 { try unbox(key) }
-    func decode(_ type: UInt16.Type, forKey key: Key) throws -> UInt16 { try unbox(key) }
-    func decode(_ type: UInt32.Type, forKey key: Key) throws -> UInt32 { try unbox(key) }
-    func decode(_ type: UInt64.Type, forKey key: Key) throws -> UInt64 { try unbox(key) }
+    func decode<T>(_ type: T.Type, forKey key: Key) throws -> T where T : Decodable, T: StringInitializable {
+        return try unbox(key)
+    }
 
     func decode<T>(_ type: T.Type, forKey key: Key) throws -> T where T : Decodable {
         switch T.self {
