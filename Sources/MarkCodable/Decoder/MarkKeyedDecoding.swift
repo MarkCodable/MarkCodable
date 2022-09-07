@@ -50,23 +50,9 @@ struct MarkKeyedDecoding<Key: CodingKey>: KeyedDecodingContainerProtocol {
         default: break
         }
 
-        if type is any Collection.Type {
-            let nestedKey = codingPath + [key]
-            let decoding = MarkDecoding(codingPath: nestedKey, userInfo: userInfo, from: data)
-            return try T.init(from: decoding)
-        } else {
-            var nestedData: [String: String] = [:]
-            let nestedPrefix = key.stringValue + "."
-
-            for (dataKey, value) in data where dataKey.hasPrefix(nestedPrefix) {
-                let nestedKey = dataKey.dropFirst(nestedPrefix.count)
-                if !nestedKey.isEmpty {
-                    nestedData[String(nestedKey)] = value
-                }
-            }
-            let decoding = MarkDecoding(codingPath: codingPath + [key], userInfo: userInfo, from: nestedData)
-            return try T.init(from: decoding)
-        }
+        let nestedKey = codingPath + [key]
+        let decoding = MarkDecoding(codingPath: nestedKey, userInfo: userInfo, from: data)
+        return try T.init(from: decoding)
     }
 
     func nestedContainer<NestedKey>(keyedBy type: NestedKey.Type, forKey key: Key) throws -> KeyedDecodingContainer<NestedKey> where NestedKey : CodingKey {
