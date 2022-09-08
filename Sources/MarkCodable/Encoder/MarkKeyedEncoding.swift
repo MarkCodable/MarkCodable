@@ -63,7 +63,3 @@ struct MarkKeyedEncoding<Key: CodingKey>: KeyedEncodingContainerProtocol {
         return MarkEncoding(codingPath: codingPath + [key], userInfo: userInfo, to: data)
     }
 }
-
-extension MarkKeyedEncoding {
-
-}
