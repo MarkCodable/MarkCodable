@@ -2,14 +2,6 @@
 
 import PackageDescription
 
-#if compiler(>=5.7)
-let swiftMarkdownVersion = "release/5.7"
-#elseif compiler(>=5.6)
-let swiftMarkdownVersion = "release/5.6"
-#else
-fatalError("This version of MarkCodable requires Swift >= 5.6.")
-#endif
-
 let package = Package(
     name: "MarkCodable",
     platforms: [
@@ -33,7 +25,8 @@ let package = Package(
         ),
     ],
     dependencies: [
-        .package(url: "https://github.com/apple/swift-markdown.git", branch: swiftMarkdownVersion),
+        // Using a fork for the faux semantic version.
+        .package(url: "https://github.com/markcodable/swift-markdown.git", exact: "0.100.1"),
     ],
     targets: [
         .executableTarget(
