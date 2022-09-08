@@ -351,7 +351,8 @@ final class MarkCoderTests: XCTestCase {
         XCTAssertEqual(value, try decoder.decode(SingleString.self, string: markdown))
     }
 
-    func testSingleOptionalString() throws {
+    // TODO: Add variants for all other encodable primites to verify we correctly produce a column header even when there's no data.
+    func testSingleOptionalStringColumn() throws {
         struct SingleOptionalString: Codable, Equatable {
             var optionalString: String?
         }
@@ -376,6 +377,36 @@ final class MarkCoderTests: XCTestCase {
         let existingValue = SingleOptionalString(optionalString: "yes")
         XCTAssertEqual(singleNonNilMarkdown, try encoder.encode(existingValue))
         XCTAssertEqual(existingValue, try decoder.decode(SingleOptionalString.self, string: singleNonNilMarkdown))
+
+        let multipleNilsMarkdown = """
+        |optionalString|
+        |--------------|
+        |              |
+        |              |
+        |              |
+        """
+        let multipleNilValues = [
+          SingleOptionalString(optionalString: nil),
+          SingleOptionalString(optionalString: nil),
+          SingleOptionalString(optionalString: nil),
+        ]
+        XCTAssertEqual(multipleNilsMarkdown, try encoder.encode(multipleNilValues))
+        XCTAssertEqual(multipleNilValues, try decoder.decode([SingleOptionalString].self, string: multipleNilsMarkdown))
+
+       let multipleMixedMarkdown = """
+        |optionalString|
+        |--------------|
+        |              |
+        |mixed         |
+        |              |
+        """
+        let multipleMixedValues = [
+          SingleOptionalString(optionalString: nil),
+          SingleOptionalString(optionalString: "mixed"),
+          SingleOptionalString(optionalString: nil),
+        ]
+        XCTAssertEqual(multipleMixedMarkdown, try encoder.encode(multipleMixedValues))
+        XCTAssertEqual(multipleMixedValues, try decoder.decode([SingleOptionalString].self, string: multipleMixedMarkdown))
     }
 
     func testNestedTypes() throws {
