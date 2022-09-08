@@ -18,6 +18,15 @@ struct MarkKeyedDecoding<Key: CodingKey>: KeyedDecodingContainerProtocol {
         return data.keys.contains(key.stringValue)
     }
 
+    // TODO: This is likely needed for all other primitives and requires testing.
+    func decodeIfPresent(_ type: String.Type, forKey key: Key) throws -> String? {
+        let nestedPath = codingPath + [key]
+        let decoding = MarkDecoding(codingPath: nestedPath, userInfo: userInfo, from: data)
+        let value = try String(from: decoding)
+        guard !value.isEmpty else { return nil }
+        return value
+    }
+
     func decodeIfPresent<T>(_ type: T.Type, forKey key: Key) throws -> T? where T : Decodable {
         // TODO: Test if we handle optional URL/custom types properly like decode<T>
 

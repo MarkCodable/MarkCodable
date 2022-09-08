@@ -411,16 +411,15 @@ final class MarkCoderTests: XCTestCase {
 
     func testNestedTypes() throws {
         let markdown = """
-        |optionalPig.name|pig.name|
-        |----------------|--------|
-        |Snowball        |Napoleon|
+        |optionalPig.color|optionalPig.name|pig.color|pig.name|
+        |-----------------|----------------|---------|--------|
+        |pink             |Snowball        |         |Napoleon|
         """
 
         let encoder = MarkEncoder()
         let decoder = MarkDecoder()
 
         XCTAssertEqual(try encoder.encode(animalFarm1), markdown)
-
         XCTAssertEqual(try decoder.decode(AnimalFarm.self, string: markdown), animalFarm1)
     }
 }

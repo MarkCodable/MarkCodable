@@ -58,5 +58,6 @@ let blog1 = Blog(
 // Animal Farm
 
 let animalFarm1 = AnimalFarm(
-  pig: .init(name: "Snowball")
+  pig: .init(name: "Napoleon", color: nil),
+  optionalPig: .init(name: "Snowball", color: "pink")
 )

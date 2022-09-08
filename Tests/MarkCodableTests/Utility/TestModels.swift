@@ -115,8 +115,10 @@ struct ListContainer<T: Codable>: Codable {
 
 struct AnimalFarm: Codable, Equatable {
     let pig: Pig
+    let optionalPig: Pig?
 
     struct Pig: Codable, Equatable {
         let name: String
+        let color: String?
     }
 }
