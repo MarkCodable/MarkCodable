@@ -1,9 +1,4 @@
-//
-//  File.swift
-//
-//
-//  Created by Marin Todorov on 8/31/22.
-//
+// See the LICENSE file for this code's license information.
 
 import Foundation
 

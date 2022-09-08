@@ -1,3 +1,5 @@
+// See the LICENSE file for this code's license information.
+
 import XCTest
 @testable import MarkCodable
 
