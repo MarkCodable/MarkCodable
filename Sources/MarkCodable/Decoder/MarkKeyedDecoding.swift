@@ -13,7 +13,7 @@ struct MarkKeyedDecoding<Key: CodingKey>: KeyedDecodingContainerProtocol {
     }
 
     func contains(_ key: Key) -> Bool {
-        data.keys.contains(key.stringValue)
+        return data.keys.contains(key.stringValue)
     }
 
     func decodeNil(forKey key: Key) throws -> Bool {
