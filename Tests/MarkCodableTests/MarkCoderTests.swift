@@ -238,14 +238,15 @@ final class MarkCoderTests: XCTestCase {
             strings: [],
             bools: [],
             optionalBools: [nil],
-            custom: []
+            custom: [],
+            urls: nil
         )
 
         let encoded = try encoder.encode([lists])
         XCTAssertEqual(encoded, """
-        |bools|custom|optionalBools|strings|
-        |-----|------|-------------|-------|
-        |     |      |nil          |       |
+        |bools|custom|ints|optionalBools|strings|urls|
+        |-----|------|----|-------------|-------|----|
+        |     |      |    |nil          |       |    |
         """)
 
         let decoded = try decoder.decode(Lists.self, string: encoded)

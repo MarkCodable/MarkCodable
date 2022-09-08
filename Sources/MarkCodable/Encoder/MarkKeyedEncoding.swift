@@ -14,6 +14,14 @@ struct MarkKeyedEncoding<Key: CodingKey>: KeyedEncodingContainerProtocol {
         self.data = data
     }
 
+    mutating func encodeIfPresent<T>(_ value: T?, forKey key: Key) throws where T : Encodable {
+        if let value = value {
+            try encode(value, forKey: key)
+        } else {
+            try encodeNil(forKey: key)
+        }
+    }
+
     mutating func encodeNil(forKey key: Key) throws {
         data.encode(key: codingPath + [key], value: "")
     }
