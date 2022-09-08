@@ -1,11 +1,18 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by Marin Todorov on 8/31/22.
 //
 
 import Foundation
+
+/// Used to skip empty collections when decoded into an optional field.
+fileprivate protocol DecodableCollection {
+    var isEmpty: Bool { get }
+}
+
+extension Array: DecodableCollection where Element: Decodable { }
 
 struct MarkKeyedDecoding<Key: CodingKey>: KeyedDecodingContainerProtocol {
     var allKeys: [Key] {
@@ -17,10 +24,19 @@ struct MarkKeyedDecoding<Key: CodingKey>: KeyedDecodingContainerProtocol {
     }
 
     func decodeIfPresent<T>(_ type: T.Type, forKey key: Key) throws -> T? where T : Decodable {
-        // TODO: Handle optional URL
+        // TODO: Test if we handle optional URL/custom types properly like decode<T>
+
         let nestedPath = codingPath + [key]
         let decoding = MarkDecoding(codingPath: nestedPath, userInfo: userInfo, from: data)
-        return try T.init(from: decoding)
+        let decodedValue = try T.init(from: decoding)
+
+        // Optional collection cells that are empty decode as empty collections, e.g. `[]`. We rather want `nil` instead.
+        if let collectionDecodable = decodedValue as? DecodableCollection,
+           collectionDecodable.isEmpty {
+            return nil
+        }
+
+        return decodedValue
     }
 
     func decodeNil(forKey key: Key) throws -> Bool {
