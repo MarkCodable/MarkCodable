@@ -39,8 +39,8 @@ struct MarkKeyedDecoding<Key: CodingKey>: KeyedDecodingContainerProtocol {
         default: break
         }
 
-        let nestedKey = codingPath + [key]
-        let decoding = MarkDecoding(codingPath: nestedKey, userInfo: userInfo, from: data)
+        let nestedPath = codingPath + [key]
+        let decoding = MarkDecoding(codingPath: nestedPath, userInfo: userInfo, from: data)
         return try T.init(from: decoding)
     }
 
