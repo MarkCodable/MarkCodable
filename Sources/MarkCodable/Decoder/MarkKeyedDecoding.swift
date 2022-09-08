@@ -2,17 +2,50 @@
 
 import Foundation
 
+/// Used to skip empty collections when decoded into an optional field.
+fileprivate protocol DecodableCollection {
+    var isEmpty: Bool { get }
+}
+
+extension Array: DecodableCollection where Element: Decodable { }
+
 struct MarkKeyedDecoding<Key: CodingKey>: KeyedDecodingContainerProtocol {
     var allKeys: [Key] {
         return data.keys.sorted().compactMap { Key(stringValue: $0) }
     }
 
     func contains(_ key: Key) -> Bool {
-        data.keys.contains(key.stringValue)
+        return data.keys.contains(key.stringValue)
+    }
+
+    // TODO: This is likely needed for all other primitives and requires testing.
+    func decodeIfPresent(_ type: String.Type, forKey key: Key) throws -> String? {
+        let nestedPath = codingPath + [key]
+        let decoding = MarkDecoding(codingPath: nestedPath, userInfo: userInfo, from: data)
+        let value = try String(from: decoding)
+        guard !value.isEmpty else { return nil }
+        return value
+    }
+
+    func decodeIfPresent<T>(_ type: T.Type, forKey key: Key) throws -> T? where T : Decodable {
+        // TODO: Test if we handle optional URL/custom types properly like decode<T>
+
+        let nestedPath = codingPath + [key]
+        let decoding = MarkDecoding(codingPath: nestedPath, userInfo: userInfo, from: data)
+        let decodedValue = try T.init(from: decoding)
+
+        // Optional collection cells that are empty decode as empty collections, e.g. `[]`. We rather want `nil` instead.
+        if let collectionDecodable = decodedValue as? DecodableCollection,
+           collectionDecodable.isEmpty {
+            return nil
+        }
+
+        return decodedValue
     }
 
     func decodeNil(forKey key: Key) throws -> Bool {
-        guard let value = data[key.stringValue] else {
+        let nestedPath = codingPath + [key]
+        guard let value = data[nestedPath.absoluteString] else {
             throw DecodingError.keyNotFound(key, DecodingError.Context(codingPath: codingPath, debugDescription: "No value associated with key \(key) (\"\(key.stringValue)\")."))
         }
         return value == ""
@@ -25,7 +58,7 @@ struct MarkKeyedDecoding<Key: CodingKey>: KeyedDecodingContainerProtocol {
     func decode<T>(_ type: T.Type, forKey key: Key) throws -> T where T : Decodable {
         switch T.self {
         case is URL.Type:
-            guard let optionalValue = data[key.stringValue],
+            guard let optionalValue = data[key.stringValue], // TODO: Add tests if nestedPath is needed
                   let value = optionalValue,
                   let url = URL(string: value) else {
                 throw DecodingError.typeMismatch(URL.self, DecodingError.Context(codingPath: codingPath, debugDescription: "Could not parse URL value for key \(codingPath)"))
@@ -34,8 +67,8 @@ struct MarkKeyedDecoding<Key: CodingKey>: KeyedDecodingContainerProtocol {
         default: break
         }
 
-        let nestedKey = codingPath + [key]
-        let decoding = MarkDecoding(codingPath: nestedKey, userInfo: userInfo, from: data)
+        let nestedPath = codingPath + [key]
+        let decoding = MarkDecoding(codingPath: nestedPath, userInfo: userInfo, from: data)
         return try T.init(from: decoding)
     }
 
@@ -75,7 +108,8 @@ struct MarkKeyedDecoding<Key: CodingKey>: KeyedDecodingContainerProtocol {
     }
 
     private func unbox<T: Decodable & StringInitializable>(_ key: Key) throws -> T {
-        guard let value = data[key.stringValue] else {
+        let nestedPath = codingPath + [key]
+        guard let value = data[nestedPath.absoluteString] else {
             throw DecodingError.keyNotFound(key, DecodingError.Context(codingPath: codingPath, debugDescription: "No value associated with key \(key) (\"\(key.stringValue)\")."))
         }
         guard let unwrappedValue = value else {

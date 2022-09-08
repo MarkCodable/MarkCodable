@@ -102,22 +102,20 @@ final class MarkCoderTests: XCTestCase {
         var optional = optionalNilHouse
         let encoded2 = try encoder.encode(optional)
         XCTAssertEqual(encoded2, """
-        ||
-        ||
-        ||
+        |name|
+        |----|
+        |    |
         """)
 
-        // TODO: the encoder produces an invalid markdown table
-        // https://github.com/icanzilb/MarkCodable/issues/1
-        // let decoded2 = try decoder.decode([OptionalHouse].self, string: encoded2)
-        // XCTAssertEqual(decoded2, [optional])
+        let decoded2 = try decoder.decode([OptionalHouse].self, string: encoded2)
+        XCTAssertEqual(decoded2, [optional])
 
         optional.isNewlyBuilt = true
         let encoded3 = try encoder.encode(optional)
         XCTAssertEqual(encoded3, """
-        |isNewlyBuilt|
-        |------------|
-        |true        |
+        |isNewlyBuilt|name|
+        |------------|----|
+        |true        |    |
         """)
 
         let decoded3 = try decoder.decode([OptionalHouse].self, string: encoded3)
@@ -126,9 +124,9 @@ final class MarkCoderTests: XCTestCase {
         optional.numberWindows = 10_000
         let encoded4 = try encoder.encode(optional)
         XCTAssertEqual(encoded4, """
-        |isNewlyBuilt|numberWindows|
-        |------------|-------------|
-        |true        |10000        |
+        |isNewlyBuilt|name|numberWindows|
+        |------------|----|-------------|
+        |true        |    |10000        |
         """)
 
         let decoded4 = try decoder.decode([OptionalHouse].self, string: encoded4)
@@ -238,14 +236,15 @@ final class MarkCoderTests: XCTestCase {
             strings: [],
             bools: [],
             optionalBools: [nil],
-            custom: []
+            custom: [],
+            urls: nil
         )
 
         let encoded = try encoder.encode([lists])
         XCTAssertEqual(encoded, """
-        |bools|custom|optionalBools|strings|
-        |-----|------|-------------|-------|
-        |     |      |nil          |       |
+        |bools|custom|ints|optionalBools|strings|urls|
+        |-----|------|----|-------------|-------|----|
+        |     |      |    |nil          |       |    |
         """)
 
         let decoded = try decoder.decode(Lists.self, string: encoded)
@@ -350,5 +349,77 @@ final class MarkCoderTests: XCTestCase {
         let value = SingleString(string: "")
         XCTAssertEqual(markdown, try encoder.encode(value))
         XCTAssertEqual(value, try decoder.decode(SingleString.self, string: markdown))
+    }
+
+    // TODO: Add variants for all other encodable primites to verify we correctly produce a column header even when there's no data.
+    func testSingleOptionalStringColumn() throws {
+        struct SingleOptionalString: Codable, Equatable {
+            var optionalString: String?
+        }
+
+        let encoder = MarkEncoder()
+        let decoder = MarkDecoder()
+
+        let singleNilMarkdown = """
+        |optionalString|
+        |--------------|
+        |              |
+        """
+        let nilValue = SingleOptionalString(optionalString: nil)
+        XCTAssertEqual(singleNilMarkdown, try encoder.encode(nilValue))
+        XCTAssertEqual(nilValue, try decoder.decode(SingleOptionalString.self, string: singleNilMarkdown))
+
+        let singleNonNilMarkdown = """
+        |optionalString|
+        |--------------|
+        |yes           |
+        """
+        let existingValue = SingleOptionalString(optionalString: "yes")
+        XCTAssertEqual(singleNonNilMarkdown, try encoder.encode(existingValue))
+        XCTAssertEqual(existingValue, try decoder.decode(SingleOptionalString.self, string: singleNonNilMarkdown))
+
+        let multipleNilsMarkdown = """
+        |optionalString|
+        |--------------|
+        |              |
+        |              |
+        |              |
+        """
+        let multipleNilValues = [
+          SingleOptionalString(optionalString: nil),
+          SingleOptionalString(optionalString: nil),
+          SingleOptionalString(optionalString: nil),
+        ]
+        XCTAssertEqual(multipleNilsMarkdown, try encoder.encode(multipleNilValues))
+        XCTAssertEqual(multipleNilValues, try decoder.decode([SingleOptionalString].self, string: multipleNilsMarkdown))
+
+       let multipleMixedMarkdown = """
+        |optionalString|
+        |--------------|
+        |              |
+        |mixed         |
+        |              |
+        """
+        let multipleMixedValues = [
+          SingleOptionalString(optionalString: nil),
+          SingleOptionalString(optionalString: "mixed"),
+          SingleOptionalString(optionalString: nil),
+        ]
+        XCTAssertEqual(multipleMixedMarkdown, try encoder.encode(multipleMixedValues))
+        XCTAssertEqual(multipleMixedValues, try decoder.decode([SingleOptionalString].self, string: multipleMixedMarkdown))
+    }
+
+    func testNestedTypes() throws {
+        let markdown = """
+        |optionalPig.color|optionalPig.name|pig.color|pig.name|
+        |-----------------|----------------|---------|--------|
+        |pink             |Snowball        |         |Napoleon|
+        """
+
+        let encoder = MarkEncoder()
+        let decoder = MarkDecoder()
+
+        XCTAssertEqual(try encoder.encode(animalFarm1), markdown)
+        XCTAssertEqual(try decoder.decode(AnimalFarm.self, string: markdown), animalFarm1)
     }
 }

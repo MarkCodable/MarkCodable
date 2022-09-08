@@ -14,6 +14,23 @@ struct MarkKeyedEncoding<Key: CodingKey>: KeyedEncodingContainerProtocol {
         self.data = data
     }
 
+    // TODO: This is likely needed for all other primitives and requires testing.
+    mutating func encodeIfPresent(_ value: String?, forKey key: Key) throws {
+        if let value = value {
+            try encode(value, forKey: key)
+        } else {
+            try encodeNil(forKey: key)
+        }
+    }
+
+    mutating func encodeIfPresent<T>(_ value: T?, forKey key: Key) throws where T : Encodable {
+        if let value = value {
+            try encode(value, forKey: key)
+        } else {
+            try encodeNil(forKey: key)
+        }
+    }
+
     mutating func encodeNil(forKey key: Key) throws {
         data.encode(key: codingPath + [key], value: "")
     }
@@ -54,8 +71,4 @@ struct MarkKeyedEncoding<Key: CodingKey>: KeyedEncodingContainerProtocol {
     mutating func superEncoder(forKey key: Key) -> Encoder {
         return MarkEncoding(codingPath: codingPath + [key], userInfo: userInfo, to: data)
     }
-}
-
-extension MarkKeyedEncoding {
-
 }

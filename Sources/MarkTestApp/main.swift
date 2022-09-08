@@ -9,9 +9,9 @@ struct House: Codable {
     var street: String
     var number: Int
     var price: Price
-    
+
     struct Price: Codable {
-        var price: Double
+        var amount: Double
         var currency: String
         var conversionRate: Float?
     }
@@ -19,7 +19,7 @@ struct House: Codable {
 
 // Markdown input
 let input = """
-| street | number | price.price | price.currency | isSocial | price.conversionRate |
+| street | number | price.amount | price.currency | isSocial | price.conversionRate |
 |----------| ------ | ---| --- | -- | - |
 | main st. | 134 | 1234.32 | USD | false     | |
 | Secondary st. | 24 | 9234.32 | JPY | true| 24.28 |
