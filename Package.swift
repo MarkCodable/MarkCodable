@@ -11,21 +11,25 @@ fatalError("This version of MarkCodable requires Swift >= 5.6.")
 #endif
 
 let package = Package(
-    name: "mark-codable",
+    name: "MarkCodable",
     platforms: [
         .macOS(.v10_15),
-        .iOS(.v13)
+        .iOS(.v13),
+        .tvOS(.v13),
+        .watchOS(.v6),
     ],
     products: [
+        // The MarkCodable package offering the markdown codec.
+        .library(
+            name: "MarkCodable",
+            targets: ["MarkCodable"]
+        ),
+        // A command line test app.
         .executable(
             name: "marktest",
             targets: [
                 "MarkTestApp"
             ]
-        ),
-        .library(
-            name: "MarkCodable",
-            targets: ["MarkCodable"]
         ),
     ],
     dependencies: [
