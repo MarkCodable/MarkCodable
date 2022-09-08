@@ -54,7 +54,7 @@ struct MarkKeyedDecoding<Key: CodingKey>: KeyedDecodingContainerProtocol {
     func decode<T>(_ type: T.Type, forKey key: Key) throws -> T where T : Decodable {
         switch T.self {
         case is URL.Type:
-            guard let optionalValue = data[key.stringValue],
+            guard let optionalValue = data[key.stringValue], // TODO: Add tests if nestedPath is needed
                   let value = optionalValue,
                   let url = URL(string: value) else {
                 throw DecodingError.typeMismatch(URL.self, DecodingError.Context(codingPath: codingPath, debugDescription: "Could not parse URL value for key \(codingPath)"))
