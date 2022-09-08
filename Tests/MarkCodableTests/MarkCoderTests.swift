@@ -350,6 +350,34 @@ final class MarkCoderTests: XCTestCase {
         XCTAssertEqual(value, try decoder.decode(SingleString.self, string: markdown))
     }
 
+    func testSingleOptionalString() throws {
+        struct SingleOptionalString: Codable, Equatable {
+            var optionalString: String?
+        }
+
+        let encoder = MarkEncoder()
+        let decoder = MarkDecoder()
+
+        // FIXME: This currently fails, needs discussion.
+        let singleNilMarkdown = """
+        |optionalString|
+        |--------------|
+        |              |
+        """
+        let nilValue = SingleOptionalString(optionalString: nil)
+        XCTAssertEqual(singleNilMarkdown, try encoder.encode(nilValue))
+        XCTAssertEqual(nilValue, try decoder.decode(SingleOptionalString.self, string: singleNilMarkdown))
+
+        let singleNonNilMarkdown = """
+        |optionalString|
+        |--------------|
+        |yes           |
+        """
+        let existingValue = SingleOptionalString(optionalString: "yes")
+        XCTAssertEqual(singleNonNilMarkdown, try encoder.encode(existingValue))
+        XCTAssertEqual(existingValue, try decoder.decode(SingleOptionalString.self, string: singleNonNilMarkdown))
+    }
+
     func testNestedTypes() throws {
         let markdown = """
         |optionalPig.name|pig.name|
