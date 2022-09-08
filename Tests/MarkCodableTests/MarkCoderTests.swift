@@ -352,9 +352,9 @@ final class MarkCoderTests: XCTestCase {
 
     func testNestedTypes() throws {
         let markdown = """
-        |pig.name|
-        |--------|
-        |Snowball|
+        |optionalPig.name|pig.name|
+        |----------------|--------|
+        |Snowball        |Napoleon|
         """
 
         let encoder = MarkEncoder()

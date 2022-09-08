@@ -16,8 +16,16 @@ struct MarkKeyedDecoding<Key: CodingKey>: KeyedDecodingContainerProtocol {
         return data.keys.contains(key.stringValue)
     }
 
+    func decodeIfPresent<T>(_ type: T.Type, forKey key: Key) throws -> T? where T : Decodable {
+        // TODO: Handle optional URL
+        let nestedPath = codingPath + [key]
+        let decoding = MarkDecoding(codingPath: nestedPath, userInfo: userInfo, from: data)
+        return try T.init(from: decoding)
+    }
+
     func decodeNil(forKey key: Key) throws -> Bool {
-        guard let value = data[key.stringValue] else {
+        let nestedPath = codingPath + [key]
+        guard let value = data[nestedPath.absoluteString] else {
             throw DecodingError.keyNotFound(key, DecodingError.Context(codingPath: codingPath, debugDescription: "No value associated with key \(key) (\"\(key.stringValue)\")."))
         }
         return value == ""
