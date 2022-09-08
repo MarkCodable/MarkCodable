@@ -102,22 +102,20 @@ final class MarkCoderTests: XCTestCase {
         var optional = optionalNilHouse
         let encoded2 = try encoder.encode(optional)
         XCTAssertEqual(encoded2, """
-        ||
-        ||
-        ||
+        |name|
+        |----|
+        |    |
         """)
 
-        // TODO: the encoder produces an invalid markdown table
-        // https://github.com/icanzilb/MarkCodable/issues/1
-        // let decoded2 = try decoder.decode([OptionalHouse].self, string: encoded2)
-        // XCTAssertEqual(decoded2, [optional])
+        let decoded2 = try decoder.decode([OptionalHouse].self, string: encoded2)
+        XCTAssertEqual(decoded2, [optional])
 
         optional.isNewlyBuilt = true
         let encoded3 = try encoder.encode(optional)
         XCTAssertEqual(encoded3, """
-        |isNewlyBuilt|
-        |------------|
-        |true        |
+        |isNewlyBuilt|name|
+        |------------|----|
+        |true        |    |
         """)
 
         let decoded3 = try decoder.decode([OptionalHouse].self, string: encoded3)
@@ -126,9 +124,9 @@ final class MarkCoderTests: XCTestCase {
         optional.numberWindows = 10_000
         let encoded4 = try encoder.encode(optional)
         XCTAssertEqual(encoded4, """
-        |isNewlyBuilt|numberWindows|
-        |------------|-------------|
-        |true        |10000        |
+        |isNewlyBuilt|name|numberWindows|
+        |------------|----|-------------|
+        |true        |    |10000        |
         """)
 
         let decoded4 = try decoder.decode([OptionalHouse].self, string: encoded4)
@@ -361,7 +359,6 @@ final class MarkCoderTests: XCTestCase {
         let encoder = MarkEncoder()
         let decoder = MarkDecoder()
 
-        // FIXME: This currently fails, needs discussion.
         let singleNilMarkdown = """
         |optionalString|
         |--------------|
