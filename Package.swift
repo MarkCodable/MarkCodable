@@ -25,12 +25,8 @@ let package = Package(
         ),
     ],
     dependencies: [
-        // swift-markdown doesn't have semantic version tags
-        // we should update the commit hash here from time to time.
-        .package(
-            url: "https://github.com/apple/swift-markdown.git",
-            revision: "52563fc74a540b29854fde20e836b27394be2749"
-        ),
+        // Using a fork for the faux semantic version.
+        .package(url: "https://github.com/markcodable/swift-markdown.git", exact: "0.100.1"),
     ],
     targets: [
         .executableTarget(
