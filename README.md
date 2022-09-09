@@ -94,7 +94,7 @@ Use the package directly in Xcode or via SwiftPM.
 
 ```swift
 dependencies: [
-  .package(url: "https://github.com/icanzilb/MarkCodable", from: "0.6.0"),
+  .package(url: "https://github.com/MarkCodable/MarkCodable", from: "0.6.0"),
 ]
 ```
 
