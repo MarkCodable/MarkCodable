@@ -40,6 +40,17 @@ final class CodingData {
             values[codingKey.absoluteString] = value
         }
     }
+
+    private var trackedKeys = [String]()
+    func addTrackedKey(_ key: String) {
+        trackedKeys.append(key)
+    }
+
+    func validateTrackedKeys() throws {
+        for trackedKey in trackedKeys where !values.keys.contains(trackedKey) {
+            throw MarkEncoder.MarkEncodingError.unsupportedValue("Warning: MarkCodable encountered a code path \(trackedKey) but no values were coded under that key.")
+        }
+    }
 }
 
 extension Array where Element == Appending {
