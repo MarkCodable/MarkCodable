@@ -20,7 +20,11 @@ import Markdown
 /// |true    |25    |EUR           |100400.0   |Main St.  |
 /// ```
 public class MarkEncoder {
-    
+    /// Markdown encoding errors.
+    public enum MarkEncodingError: Error {
+        case unsupportedValue(String)
+    }
+
     /// Any user info to pass along to encoding containers.
     var userInfo = UserInfo()
     
@@ -77,6 +81,10 @@ public class MarkEncoder {
         
         let encoding = MarkEncoding(codingPath: [], userInfo: userInfo, to: .init())
         try value.encode(to: encoding)
+
+        // Throws in case not all walked nested container keys ended up encoding values.
+        try encoding.data.validateTrackedKeys()
+
         keys = encoding.data.values.keys.sorted()
         values = [encoding.data.values]
         
