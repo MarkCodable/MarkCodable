@@ -56,6 +56,9 @@ struct MarkKeyedEncoding<Key: CodingKey>: KeyedEncodingContainerProtocol {
         forKey key: Key
     ) -> KeyedEncodingContainer<NestedKey> {
         let container = MarkKeyedEncoding<NestedKey>(codingPath: codingPath + [key], userInfo: userInfo, to: data)
+        // Track nested containers, as part as a failsafe against enums.
+        data.addTrackedKey((codingPath + [key]).absoluteString)
+        
         return KeyedEncodingContainer(container)
     }
 
