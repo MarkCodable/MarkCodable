@@ -48,28 +48,7 @@ public class MarkEncoder {
         }
         keys = uniqueKeys.sorted()
         
-        let table = Markdown.Table(
-            header: Markdown.Table.Head(
-                keys.map { value -> Markdown.Table.Cell in
-                    Markdown.Table.Cell(Text(value))
-                }
-            ),
-            body: Markdown.Table.Body(
-                values.map({ row -> Markdown.Table.Row in
-                    Markdown.Table.Row(
-                        keys.map { key -> Markdown.Table.Cell in
-                            if let optionalValue = row[key], let value = optionalValue {
-                                return Markdown.Table.Cell(Text(value))
-                            } else {
-                                return Markdown.Table.Cell(Text(""))
-                            }
-                        }
-                    )
-                })
-            )
-        )
-        
-        return table.format()
+        return formattedMarkdownTable(keys, values)
     }
     
     /// Returns a Markdown-encoded representation of the value you supply.
@@ -88,6 +67,10 @@ public class MarkEncoder {
         keys = encoding.data.values.keys.sorted()
         values = [encoding.data.values]
         
+        return formattedMarkdownTable(keys, values)
+    }
+    
+    private func formattedMarkdownTable(_ keys: [String], _ values: [CodingValues]) -> String {
         let table = Markdown.Table(
             header: Markdown.Table.Head(
                 keys.map { value -> Markdown.Table.Cell in
