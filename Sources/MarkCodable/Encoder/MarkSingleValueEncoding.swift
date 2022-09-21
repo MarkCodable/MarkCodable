@@ -25,15 +25,7 @@ struct MarkSingleValueEncoding: SingleValueEncodingContainer {
     // https://github.com/icanzilb/MarkCodable/issues/10
     mutating func encode<T>(_ value: T) throws where T : Encodable {
         let markEncoding = MarkEncoding(codingPath: codingPath, userInfo: userInfo, to: data)
-
-        switch value {
-        case let url as URL:
-            data.isAppendingContainer.push(false)
-            defer { data.isAppendingContainer.pop() }
-
-            data.encode(key: codingPath, value: url.absoluteString)
-        default:
-            try value.encode(to: markEncoding)
-        }
+        
+        markEncoding.encode(value, for: .singleValue)
     }
 }

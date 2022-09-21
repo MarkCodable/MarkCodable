@@ -8,6 +8,11 @@ struct MarkEncoding: Encoder {
 
     var data: CodingData
 
+    public enum EncodingType {
+        case singleValue
+        case unkeyed
+    }
+    
     init(codingPath: CodingPath, userInfo: UserInfo, to data: CodingData) {
         self.codingPath = codingPath
         self.userInfo = userInfo
@@ -27,6 +32,25 @@ struct MarkEncoding: Encoder {
 
     func singleValueContainer() -> SingleValueEncodingContainer {
         return MarkSingleValueEncoding(codingPath: codingPath, userInfo: userInfo, to: data)
+    }
+    
+    func encode<T>(_ value: T, for encodingType: EncodingType) throws where T : Encodable {
+        switch value {
+        case let url as URL:
+            if encodingType == .singleValue {
+                data.isAppendingContainer.push(false)
+                defer { data.isAppendingContainer.pop() }
+            }
+            
+            data.encode(key: codingPath, value: url.absoluteString, appending: encodingType == .unkeyed)
+        default:
+            if encodingType == .unkeyed {
+                data.isAppendingContainer.push(true)
+                defer { data.isAppendingContainer.pop() }
+            }
+            
+            try value.encode(to: self)
+        }
     }
 }
 

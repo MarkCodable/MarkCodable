@@ -22,17 +22,8 @@ struct MarkUnkeyedEncoding: UnkeyedEncodingContainer {
 
     mutating func encode<T>(_ value: T) throws where T : Encodable {
         let markEncoding = MarkEncoding(codingPath: codingPath, userInfo: userInfo, to: data)
-
-        switch value {
-        case let url as URL:
-            // Encode URLs as plain absolute URLs
-            data.encode(key: codingPath, value: url.absoluteString, appending: true)
-        default:
-            data.isAppendingContainer.push(true)
-            defer { data.isAppendingContainer.pop() }
-
-            try value.encode(to: markEncoding)
-        }
+        
+        markEncoding.encode(value, for: .unkeyed)
     }
 
     mutating func nestedContainer<NestedKey>(keyedBy keyType: NestedKey.Type) -> KeyedEncodingContainer<NestedKey> where NestedKey : CodingKey {
