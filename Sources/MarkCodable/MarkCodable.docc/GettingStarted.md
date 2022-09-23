@@ -31,7 +31,7 @@ struct House: Codable {
 }
 ```
 
-Then, create instance(s) of that model and use ``MarkEncoder/encode(_:)`` to get a Markdown representation as a string:
+Then, create instance(s) of that model and use ``MarkEncoder/encode(_:)-4uago`` to get a Markdown representation as a string:
 
 ```swift
 let house = House(

@@ -5,7 +5,7 @@ import Markdown
 
 /// An object that encodes instances of a data type as Markdown text.
 ///
-/// Use ``encode(_:)`` to encode `Codable` compliant values:
+/// Use ``encode(_:)-4uago`` to encode `Codable` compliant values:
 ///
 /// ```swift
 /// let encoder = MarkEncoder()
