@@ -20,8 +20,7 @@ struct MarkKeyedDecoding<Key: CodingKey>: KeyedDecodingContainerProtocol {
 
     // TODO: This is likely needed for all other primitives and requires testing.
     func decodeIfPresent(_ type: String.Type, forKey key: Key) throws -> String? {
-        let nestedPath = codingPath + [key]
-        let decoding = MarkDecoding(codingPath: nestedPath, userInfo: userInfo, from: data)
+        let decoding = MarkDecoding(codingPath: [key], userInfo: userInfo, from: data)
         let value = try String(from: decoding)
         guard !value.isEmpty else { return nil }
         return value
@@ -30,8 +29,24 @@ struct MarkKeyedDecoding<Key: CodingKey>: KeyedDecodingContainerProtocol {
     func decodeIfPresent<T>(_ type: T.Type, forKey key: Key) throws -> T? where T : Decodable {
         // TODO: Test if we handle optional URL/custom types properly like decode<T>
 
-        let nestedPath = codingPath + [key]
-        let decoding = MarkDecoding(codingPath: nestedPath, userInfo: userInfo, from: data)
+        var nestedData = CodingValues()
+        nestedData.reserveCapacity(data.count)
+        
+        // If we're descending into a keyed container, strip the rest of the data
+        // so that we have only the relevant keys left for dynamic keyed containers.
+        if !data.keys.contains(key.stringValue) {
+            let prefix = key.stringValue.appending(".")
+
+            for (key, value) in data.filter({ element in
+                element.key.hasPrefix(prefix)
+            }) {
+                nestedData[String(key.dropFirst(prefix.count))] = value
+            }
+        } else {
+            nestedData = data
+        }
+
+        let decoding = MarkDecoding(codingPath: [key], userInfo: userInfo, from: nestedData)
         let decodedValue = try T.init(from: decoding)
 
         // Optional collection cells that are empty decode as empty collections, e.g. `[]`. We rather want `nil` instead.
@@ -44,9 +59,8 @@ struct MarkKeyedDecoding<Key: CodingKey>: KeyedDecodingContainerProtocol {
     }
 
     func decodeNil(forKey key: Key) throws -> Bool {
-        let nestedPath = codingPath + [key]
-        guard let value = data[nestedPath.absoluteString] else {
-            throw DecodingError.keyNotFound(key, DecodingError.Context(codingPath: codingPath, debugDescription: "No value associated with key \(key) (\"\(key.stringValue)\")."))
+        guard let value = data[key.stringValue] else {
+            throw DecodingError.keyNotFound(key, DecodingError.Context(codingPath: [key], debugDescription: "No value associated with key \(key) (\"\(key.stringValue)\")."))
         }
         return value == ""
     }
@@ -67,13 +81,27 @@ struct MarkKeyedDecoding<Key: CodingKey>: KeyedDecodingContainerProtocol {
         default: break
         }
 
-        let nestedPath = codingPath + [key]
-        let decoding = MarkDecoding(codingPath: nestedPath, userInfo: userInfo, from: data)
+        var nestedData = CodingValues()
+        nestedData.reserveCapacity(data.count)
+
+        if !data.keys.contains(key.stringValue) {
+            let prefix = key.stringValue.appending(".")
+
+            for (key, value) in data.filter({ element in
+                element.key.hasPrefix(prefix)
+            }) {
+                nestedData[String(key.dropFirst(prefix.count))] = value
+            }
+        } else {
+            nestedData = data
+        }
+
+        let decoding = MarkDecoding(codingPath: [key], userInfo: userInfo, from: nestedData)
         return try T.init(from: decoding)
     }
 
     func nestedContainer<NestedKey>(keyedBy type: NestedKey.Type, forKey key: Key) throws -> KeyedDecodingContainer<NestedKey> where NestedKey : CodingKey {
-        let container = MarkKeyedDecoding<NestedKey>(codingPath: codingPath + [key], userInfo: userInfo, data: data)
+        let container = MarkKeyedDecoding<NestedKey>(codingPath: codingPath, userInfo: userInfo, data: data)
         return KeyedDecodingContainer(container)
     }
 
@@ -108,8 +136,7 @@ struct MarkKeyedDecoding<Key: CodingKey>: KeyedDecodingContainerProtocol {
     }
 
     private func unbox<T: Decodable & StringInitializable>(_ key: Key) throws -> T {
-        let nestedPath = codingPath + [key]
-        guard let value = data[nestedPath.absoluteString] else {
+        guard let value = data[key.stringValue] else {
             throw DecodingError.keyNotFound(key, DecodingError.Context(codingPath: codingPath, debugDescription: "No value associated with key \(key) (\"\(key.stringValue)\")."))
         }
         guard let unwrappedValue = value else {

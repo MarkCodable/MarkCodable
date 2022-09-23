@@ -386,14 +386,14 @@ final class MarkCoderTests: XCTestCase {
         |              |
         """
         let multipleNilValues = [
-          SingleOptionalString(optionalString: nil),
-          SingleOptionalString(optionalString: nil),
-          SingleOptionalString(optionalString: nil),
+            SingleOptionalString(optionalString: nil),
+            SingleOptionalString(optionalString: nil),
+            SingleOptionalString(optionalString: nil),
         ]
         XCTAssertEqual(multipleNilsMarkdown, try encoder.encode(multipleNilValues))
         XCTAssertEqual(multipleNilValues, try decoder.decode([SingleOptionalString].self, string: multipleNilsMarkdown))
 
-       let multipleMixedMarkdown = """
+        let multipleMixedMarkdown = """
         |optionalString|
         |--------------|
         |              |
@@ -401,9 +401,9 @@ final class MarkCoderTests: XCTestCase {
         |              |
         """
         let multipleMixedValues = [
-          SingleOptionalString(optionalString: nil),
-          SingleOptionalString(optionalString: "mixed"),
-          SingleOptionalString(optionalString: nil),
+            SingleOptionalString(optionalString: nil),
+            SingleOptionalString(optionalString: "mixed"),
+            SingleOptionalString(optionalString: nil),
         ]
         XCTAssertEqual(multipleMixedMarkdown, try encoder.encode(multipleMixedValues))
         XCTAssertEqual(multipleMixedValues, try decoder.decode([SingleOptionalString].self, string: multipleMixedMarkdown))
@@ -535,5 +535,66 @@ final class MarkCoderTests: XCTestCase {
 
         // Test roundtrip
         XCTAssertEqual(test1, try decoder.decode(TestStruct.self, string: result))
+    }
+
+    func testDictionaryCodingStrings() throws {
+        struct TestDictionary: Codable, Equatable {
+            var name: String
+            var pairs: [String: String]
+        }
+
+        let encoder = MarkEncoder()
+        let decoder = MarkDecoder()
+
+        // Test encoding keys
+        let test = TestDictionary(name: "test", pairs: ["eyes": "blue", "hair": "fair"])
+        let result = try encoder.encode(test)
+        XCTAssertEqual(result, """
+        |name|pairs.eyes|pairs.hair|
+        |----|----------|----------|
+        |test|blue      |fair      |
+        """)
+
+        // Test dictionary roundtrip
+        XCTAssertEqual(test, try decoder.decode(TestDictionary.self, string: result))
+    }
+
+    func testDictionaryCodingInts() throws {
+        struct TestDictionary: Codable, Equatable {
+            var name: String
+            var pairs: [Int: Int]
+        }
+
+        let encoder = MarkEncoder()
+        let decoder = MarkDecoder()
+
+        // Test encoding keys
+        let test = TestDictionary(name: "test", pairs: [1: 2, 3: 4])
+        let result = try encoder.encode(test)
+        XCTAssertEqual(result, """
+        |name|pairs.1|pairs.3|
+        |----|-------|-------|
+        |test|2      |4      |
+        """)
+
+        // Test dictionary roundtrip
+        XCTAssertEqual(test, try decoder.decode(TestDictionary.self, string: result))
+    }
+
+    func testDictionaryCodingURLKeys() throws {
+        struct TestDictionary: Codable, Equatable {
+            var name: String
+            var pairs: [URL: Int]
+        }
+
+        let encoder = MarkEncoder()
+        let decoder = MarkDecoder()
+
+        // Test encoding keys
+        let test = TestDictionary(name: "test", pairs: [URL(string: "https://host")!: 2, URL(string: "/etc/file.var")!: 4])
+        let result = try encoder.encode(test)
+
+        // The exact representation as text might vary, testing only the roundtrip
+        XCTAssertEqual(test, try decoder.decode(TestDictionary.self, string: result))
     }
 }
