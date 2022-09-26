@@ -84,7 +84,7 @@ private extension MarkDecoder {
             throw DecodingError.dataCorrupted(DecodingError.Context(codingPath: [], debugDescription: "No decodable data found"))
         }
 
-        return try values.map { value in
+        return try values.prefix(numberResults).map { value in
             let markDecoding = MarkDecoding(userInfo: userInfo, from: value)
             return try T.init(from: markDecoding)
         }
