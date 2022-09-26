@@ -15,11 +15,11 @@ import Markdown
 /// ```
 /// > Note: The table might not be pretty formatted as long as its valid markdown, i.e. the pipes don't need to align vertically.
 ///
-/// Use ``decode(_:string:)-6g64f`` to decode one or more values:
+/// Use ``decode(_:from:)-4ek7u`` to decode one or more values:
 ///
 /// ```swift
 /// let decoder = MarkDecoder()
-/// let houses = try decoder.decode([House].self, string: markdown)
+/// let houses = try decoder.decode([House].self, from: markdown)
 /// ```
 public class MarkDecoder {
 
@@ -41,7 +41,7 @@ public class MarkDecoder {
     /// - parameter type: The type of the value to decode from the supplied Markdown.
     /// - parameter string: The source Markdown string.
     /// - returns: An array of items of the given type.
-    public func decode<T: Decodable>(_ type: [T].Type, string: String) throws -> [T]  {
+    public func decode<T: Decodable>(_ type: [T].Type, from string: String) throws -> [T]  {
         return try decode(type, string: string, numberResults: Int.max)
     }
 
@@ -49,9 +49,10 @@ public class MarkDecoder {
     ///
     /// The method throws if `string` isn't in the expected Markdown format or any of the values cannot be decoded into its expected data type.
     /// - parameter type: The type of the value to decode from the supplied Markdown.
-    /// - parameter string: The source Markdown string.
+    /// - parameter from: The source Markdown string.
     /// - returns: An instance of the given type.
-    public func decode<T: Decodable>(_ type: T.Type, string: String) throws -> T  {
+    @_disfavoredOverload
+    public func decode<T: Decodable>(_ type: T.Type, from string: String) throws -> T  {
         return try decode([T].self, string: string, numberResults: 1)[0]
     }
 }
@@ -83,9 +84,17 @@ private extension MarkDecoder {
             throw DecodingError.dataCorrupted(DecodingError.Context(codingPath: [], debugDescription: "No decodable data found"))
         }
 
-        return try values.map { value in
+        return try values.prefix(numberResults).map { value in
             let markDecoding = MarkDecoding(userInfo: userInfo, from: value)
             return try T.init(from: markDecoding)
         }
     }
 }
+
+#if canImport(Combine)
+import Combine
+
+extension MarkDecoder: TopLevelDecoder {
+    public typealias Input = String
+}
+#endif

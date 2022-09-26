@@ -122,3 +122,13 @@ struct AnimalFarm: Codable, Equatable {
         let color: String?
     }
 }
+
+struct Simple: Codable, Equatable {
+    let number: Int
+    let string: String
+
+    init(number: Int) {
+        self.number = number
+        self.string = number.description
+    }
+}

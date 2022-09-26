@@ -17,7 +17,7 @@ final class MarkCoderTests: XCTestCase {
         let notMarkdown = "not markdown"
 
         XCTAssertThrowsError(
-            try decoder.decode(House.self, string: notMarkdown),
+            try decoder.decode(House.self, from: notMarkdown),
             "Expected to throw an error for unexpected input") { error in
 
                 guard case MarkDecoder.MarkDecodingError.unexpectedSourceFormat = error else {
@@ -33,7 +33,7 @@ final class MarkCoderTests: XCTestCase {
         """
 
         XCTAssertThrowsError(
-            try decoder.decode(House.self, string: wrongMarkdown),
+            try decoder.decode(House.self, from: wrongMarkdown),
             "Expected to throw an error for missing keys") { error in
 
                 guard case DecodingError.keyNotFound = error else {
@@ -54,7 +54,7 @@ final class MarkCoderTests: XCTestCase {
         |true        |320.12          |villa Sunshine|2             |2           |20           |12020.12     |200         |
         """)
 
-        let decoded1 = try decoder.decode(House.self, string: encoded1)
+        let decoded1 = try decoder.decode(House.self, from: encoded1)
         XCTAssertEqual(decoded1, house1)
 
         let encoded2 = try encoder.encode(house2)
@@ -64,7 +64,7 @@ final class MarkCoderTests: XCTestCase {
         |false       |13320.19        |Brick Wonder|300           |10000       |2            |24900435.42  |1           |
         """)
 
-        let decoded2 = try decoder.decode(House.self, string: encoded2)
+        let decoded2 = try decoder.decode(House.self, from: encoded2)
         XCTAssertEqual(decoded2, house2)
     }
 
@@ -81,7 +81,7 @@ final class MarkCoderTests: XCTestCase {
         |false       |13320.19        |Brick Wonder  |300           |10000       |2            |24900435.42  |1           |
         """)
 
-        let decoded1 = try decoder.decode([House].self, string: encoded1)
+        let decoded1 = try decoder.decode([House].self, from: encoded1)
         XCTAssertEqual(decoded1, [house1, house2])
     }
 
@@ -96,7 +96,7 @@ final class MarkCoderTests: XCTestCase {
         |true        |320.12          |villa Sunshine|2             |2           |20           |12020.12     |200         |
         """)
 
-        let decoded1 = try decoder.decode([OptionalHouse].self, string: encoded1)
+        let decoded1 = try decoder.decode([OptionalHouse].self, from: encoded1)
         XCTAssertEqual(decoded1, [optionalHouse1])
 
         var optional = optionalNilHouse
@@ -107,7 +107,7 @@ final class MarkCoderTests: XCTestCase {
         |    |
         """)
 
-        let decoded2 = try decoder.decode([OptionalHouse].self, string: encoded2)
+        let decoded2 = try decoder.decode([OptionalHouse].self, from: encoded2)
         XCTAssertEqual(decoded2, [optional])
 
         optional.isNewlyBuilt = true
@@ -118,7 +118,7 @@ final class MarkCoderTests: XCTestCase {
         |true        |    |
         """)
 
-        let decoded3 = try decoder.decode([OptionalHouse].self, string: encoded3)
+        let decoded3 = try decoder.decode([OptionalHouse].self, from: encoded3)
         XCTAssertEqual(decoded3, [optional])
 
         optional.numberWindows = 10_000
@@ -129,7 +129,7 @@ final class MarkCoderTests: XCTestCase {
         |true        |    |10000        |
         """)
 
-        let decoded4 = try decoder.decode([OptionalHouse].self, string: encoded4)
+        let decoded4 = try decoder.decode([OptionalHouse].self, from: encoded4)
         XCTAssertEqual(decoded4, [optional])
     }
 
@@ -145,7 +145,7 @@ final class MarkCoderTests: XCTestCase {
         |            |                |              |              |            |             |             |            |
         """)
 
-        let decoded1 = try decoder.decode([OptionalHouse].self, string: encoded1)
+        let decoded1 = try decoder.decode([OptionalHouse].self, from: encoded1)
         XCTAssertEqual(decoded1, [optionalHouse1, optionalNilHouse])
     }
 
@@ -160,7 +160,7 @@ final class MarkCoderTests: XCTestCase {
         |https://daringfireball.net|https://daringfireball.net/zxcglj/#fragment?param=1|
         """)
 
-        let decoded1 = try decoder.decode(Blog.self, string: encoded1)
+        let decoded1 = try decoder.decode(Blog.self, from: encoded1)
         XCTAssertEqual(decoded1, blog1)
     }
 
@@ -172,7 +172,7 @@ final class MarkCoderTests: XCTestCase {
 
         // Does a number of roundtrips.
         for _ in 0...100 {
-            let decoded1 = try decoder.decode([House].self, string: encoded)
+            let decoded1 = try decoder.decode([House].self, from: encoded)
             XCTAssertEqual(decoded1, [house1, house2])
             let encoded1 = try encoder.encode(decoded1)
             XCTAssertEqual(encoded1, encoded)
@@ -201,7 +201,7 @@ final class MarkCoderTests: XCTestCase {
         let decoder = MarkDecoder()
         decoder.userInfo = userInfo
 
-        let decodedContainer = try decoder.decode(UserInfoContainer.self, string: """
+        let decodedContainer = try decoder.decode(UserInfoContainer.self, from: """
         |name|
         |-|
         ||
@@ -222,7 +222,7 @@ final class MarkCoderTests: XCTestCase {
         )
 
         let encoded = try encoder.encode([ints])
-        let decoded = try decoder.decode(AllTheInts.self, string: encoded)
+        let decoded = try decoder.decode(AllTheInts.self, from: encoded)
 
         XCTAssertEqual(decoded, ints)
     }
@@ -247,7 +247,7 @@ final class MarkCoderTests: XCTestCase {
         |     |      |    |nil          |       |    |
         """)
 
-        let decoded = try decoder.decode(Lists.self, string: encoded)
+        let decoded = try decoder.decode(Lists.self, from: encoded)
         XCTAssertEqual(decoded, lists)
     }
 
@@ -271,7 +271,7 @@ final class MarkCoderTests: XCTestCase {
         |true,true|read,execute|-1,40,50|false,nil    |a,W,house|https://host|
         """)
 
-        let decoded = try decoder.decode(Lists.self, string: encoded)
+        let decoded = try decoder.decode(Lists.self, from: encoded)
         XCTAssertEqual(decoded, lists)
     }
 
@@ -286,34 +286,34 @@ final class MarkCoderTests: XCTestCase {
         let decoder = MarkDecoder()
 
         XCTAssertEqual(oneMarkdown, try encoder.encode(ListContainer<Int>(numbers: [1])))
-        XCTAssertEqual([1], try decoder.decode(ListContainer<Int>.self, string: oneMarkdown).numbers)
+        XCTAssertEqual([1], try decoder.decode(ListContainer<Int>.self, from: oneMarkdown).numbers)
 
         XCTAssertEqual(oneMarkdown, try encoder.encode(ListContainer<Int8>(numbers: [1])))
-        XCTAssertEqual([1], try decoder.decode(ListContainer<Int8>.self, string: oneMarkdown).numbers)
+        XCTAssertEqual([1], try decoder.decode(ListContainer<Int8>.self, from: oneMarkdown).numbers)
 
         XCTAssertEqual(oneMarkdown, try encoder.encode(ListContainer<Int16>(numbers: [1])))
-        XCTAssertEqual([1], try decoder.decode(ListContainer<Int16>.self, string: oneMarkdown).numbers)
+        XCTAssertEqual([1], try decoder.decode(ListContainer<Int16>.self, from: oneMarkdown).numbers)
 
         XCTAssertEqual(oneMarkdown, try encoder.encode(ListContainer<Int32>(numbers: [1])))
-        XCTAssertEqual([1], try decoder.decode(ListContainer<Int32>.self, string: oneMarkdown).numbers)
+        XCTAssertEqual([1], try decoder.decode(ListContainer<Int32>.self, from: oneMarkdown).numbers)
 
         XCTAssertEqual(oneMarkdown, try encoder.encode(ListContainer<Int64>(numbers: [1])))
-        XCTAssertEqual([1], try decoder.decode(ListContainer<Int64>.self, string: oneMarkdown).numbers)
+        XCTAssertEqual([1], try decoder.decode(ListContainer<Int64>.self, from: oneMarkdown).numbers)
 
         XCTAssertEqual(oneMarkdown, try encoder.encode(ListContainer<UInt>(numbers: [1])))
-        XCTAssertEqual([1], try decoder.decode(ListContainer<UInt>.self, string: oneMarkdown).numbers)
+        XCTAssertEqual([1], try decoder.decode(ListContainer<UInt>.self, from: oneMarkdown).numbers)
 
         XCTAssertEqual(oneMarkdown, try encoder.encode(ListContainer<UInt8>(numbers: [1])))
-        XCTAssertEqual([1], try decoder.decode(ListContainer<UInt8>.self, string: oneMarkdown).numbers)
+        XCTAssertEqual([1], try decoder.decode(ListContainer<UInt8>.self, from: oneMarkdown).numbers)
 
         XCTAssertEqual(oneMarkdown, try encoder.encode(ListContainer<UInt16>(numbers: [1])))
-        XCTAssertEqual([1], try decoder.decode(ListContainer<UInt16>.self, string: oneMarkdown).numbers)
+        XCTAssertEqual([1], try decoder.decode(ListContainer<UInt16>.self, from: oneMarkdown).numbers)
 
         XCTAssertEqual(oneMarkdown, try encoder.encode(ListContainer<UInt32>(numbers: [1])))
-        XCTAssertEqual([1], try decoder.decode(ListContainer<UInt32>.self, string: oneMarkdown).numbers)
+        XCTAssertEqual([1], try decoder.decode(ListContainer<UInt32>.self, from: oneMarkdown).numbers)
 
         XCTAssertEqual(oneMarkdown, try encoder.encode(ListContainer<UInt64>(numbers: [1])))
-        XCTAssertEqual([1], try decoder.decode(ListContainer<UInt64>.self, string: oneMarkdown).numbers)
+        XCTAssertEqual([1], try decoder.decode(ListContainer<UInt64>.self, from: oneMarkdown).numbers)
     }
 
     func testFloatNumbersInLists() throws {
@@ -327,10 +327,10 @@ final class MarkCoderTests: XCTestCase {
         let decoder = MarkDecoder()
 
         XCTAssertEqual(oneMarkdown, try encoder.encode(ListContainer<Double>(numbers: [1])))
-        XCTAssertEqual([1.0], try decoder.decode(ListContainer<Double>.self, string: oneMarkdown).numbers)
+        XCTAssertEqual([1.0], try decoder.decode(ListContainer<Double>.self, from: oneMarkdown).numbers)
 
         XCTAssertEqual(oneMarkdown, try encoder.encode(ListContainer<Float>(numbers: [1])))
-        XCTAssertEqual([1.0], try decoder.decode(ListContainer<Float>.self, string: oneMarkdown).numbers)
+        XCTAssertEqual([1.0], try decoder.decode(ListContainer<Float>.self, from: oneMarkdown).numbers)
     }
 
     func testListSingleEmptyString() throws {
@@ -348,7 +348,7 @@ final class MarkCoderTests: XCTestCase {
         }
         let value = SingleString(string: "")
         XCTAssertEqual(markdown, try encoder.encode(value))
-        XCTAssertEqual(value, try decoder.decode(SingleString.self, string: markdown))
+        XCTAssertEqual(value, try decoder.decode(SingleString.self, from: markdown))
     }
 
     // TODO: Add variants for all other encodable primites to verify we correctly produce a column header even when there's no data.
@@ -367,7 +367,7 @@ final class MarkCoderTests: XCTestCase {
         """
         let nilValue = SingleOptionalString(optionalString: nil)
         XCTAssertEqual(singleNilMarkdown, try encoder.encode(nilValue))
-        XCTAssertEqual(nilValue, try decoder.decode(SingleOptionalString.self, string: singleNilMarkdown))
+        XCTAssertEqual(nilValue, try decoder.decode(SingleOptionalString.self, from: singleNilMarkdown))
 
         let singleNonNilMarkdown = """
         |optionalString|
@@ -376,7 +376,7 @@ final class MarkCoderTests: XCTestCase {
         """
         let existingValue = SingleOptionalString(optionalString: "yes")
         XCTAssertEqual(singleNonNilMarkdown, try encoder.encode(existingValue))
-        XCTAssertEqual(existingValue, try decoder.decode(SingleOptionalString.self, string: singleNonNilMarkdown))
+        XCTAssertEqual(existingValue, try decoder.decode(SingleOptionalString.self, from: singleNonNilMarkdown))
 
         let multipleNilsMarkdown = """
         |optionalString|
@@ -391,7 +391,7 @@ final class MarkCoderTests: XCTestCase {
             SingleOptionalString(optionalString: nil),
         ]
         XCTAssertEqual(multipleNilsMarkdown, try encoder.encode(multipleNilValues))
-        XCTAssertEqual(multipleNilValues, try decoder.decode([SingleOptionalString].self, string: multipleNilsMarkdown))
+        XCTAssertEqual(multipleNilValues, try decoder.decode([SingleOptionalString].self, from: multipleNilsMarkdown))
 
         let multipleMixedMarkdown = """
         |optionalString|
@@ -406,7 +406,7 @@ final class MarkCoderTests: XCTestCase {
             SingleOptionalString(optionalString: nil),
         ]
         XCTAssertEqual(multipleMixedMarkdown, try encoder.encode(multipleMixedValues))
-        XCTAssertEqual(multipleMixedValues, try decoder.decode([SingleOptionalString].self, string: multipleMixedMarkdown))
+        XCTAssertEqual(multipleMixedValues, try decoder.decode([SingleOptionalString].self, from: multipleMixedMarkdown))
     }
 
     func testNestedTypes() throws {
@@ -420,7 +420,7 @@ final class MarkCoderTests: XCTestCase {
         let decoder = MarkDecoder()
 
         XCTAssertEqual(try encoder.encode(animalFarm1), markdown)
-        XCTAssertEqual(try decoder.decode(AnimalFarm.self, string: markdown), animalFarm1)
+        XCTAssertEqual(try decoder.decode(AnimalFarm.self, from: markdown), animalFarm1)
     }
 
     func testPlainEnumsThrowError() throws {
@@ -492,7 +492,7 @@ final class MarkCoderTests: XCTestCase {
             for count in TestStruct.Count.allCases {
                 let test = TestStruct(kind: kind, count: count)
                 let result = try encoder.encode(test)
-                let roundtrip = try decoder.decode(TestStruct.self, string: result)
+                let roundtrip = try decoder.decode(TestStruct.self, from: result)
                 XCTAssertEqual(roundtrip, test)
             }
         }
@@ -534,7 +534,7 @@ final class MarkCoderTests: XCTestCase {
         """)
 
         // Test roundtrip
-        XCTAssertEqual(test1, try decoder.decode(TestStruct.self, string: result))
+        XCTAssertEqual(test1, try decoder.decode(TestStruct.self, from: result))
     }
 
     func testDictionaryCodingStrings() throws {
@@ -556,7 +556,7 @@ final class MarkCoderTests: XCTestCase {
         """)
 
         // Test dictionary roundtrip
-        XCTAssertEqual(test, try decoder.decode(TestDictionary.self, string: result))
+        XCTAssertEqual(test, try decoder.decode(TestDictionary.self, from: result))
     }
 
     func testDictionaryCodingInts() throws {
@@ -578,7 +578,7 @@ final class MarkCoderTests: XCTestCase {
         """)
 
         // Test dictionary roundtrip
-        XCTAssertEqual(test, try decoder.decode(TestDictionary.self, string: result))
+        XCTAssertEqual(test, try decoder.decode(TestDictionary.self, from: result))
     }
 
     func testDictionaryCodingURLKeys() throws {
@@ -595,6 +595,6 @@ final class MarkCoderTests: XCTestCase {
         let result = try encoder.encode(test)
 
         // The exact representation as text might vary, testing only the roundtrip
-        XCTAssertEqual(test, try decoder.decode(TestDictionary.self, string: result))
+        XCTAssertEqual(test, try decoder.decode(TestDictionary.self, from: result))
     }
 }

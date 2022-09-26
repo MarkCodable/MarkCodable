@@ -112,3 +112,9 @@ public class MarkEncoder {
         return table.format()
     }
 }
+
+#if canImport(Combine)
+import Combine
+
+extension MarkEncoder: TopLevelEncoder { }
+#endif

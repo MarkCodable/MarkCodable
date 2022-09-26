@@ -35,7 +35,7 @@ let markdown = try MarkEncoder().encode([house1, house2])
 
 // Decode from a Markdown string
 let houses = try MarkDecoder()
-    .decode([House].self, string: markdown)
+    .decode([House].self, from: markdown)
 ```
 
 ### Configuration
@@ -82,7 +82,7 @@ Load the items by reading the files, decoding the values, and optionally store t
 
 ```swift
 let users = try MarkDecoder()
-    .decode([User].self, string: String(contentsOfFile: "Users.md"))
+    .decode([User].self, from: String(contentsOfFile: "Users.md"))
     .reduce(into: [Int: User](), { $0[$1.id] = $1 })
 
 print(users[2]) // [userID: 2, name: Gui]
