@@ -89,3 +89,15 @@ private extension MarkDecoder {
         }
     }
 }
+
+#if canImport(Combine)
+import Combine
+
+extension MarkDecoder: TopLevelDecoder {
+    public typealias Input = String
+
+    public func decode<T>(_ type: T.Type, from string: String) throws -> T where T : Decodable {
+        return try decode(T.self, string: string)
+    }
+}
+#endif
