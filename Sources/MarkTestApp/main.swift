@@ -32,7 +32,7 @@ print()
 
 // Decode values
 let decoder = MarkDecoder()
-let houses = try decoder.decode([House].self, string: input)
+let houses = try decoder.decode([House].self, from: input)
 
 print("2️⃣  Decoded structs:")
 dump(houses)

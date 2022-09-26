@@ -57,7 +57,7 @@ Now `markdown` contains the following text:
 
 ## Decoding
 
-To decode Swift values from a Markdown string use ``MarkDecoder/decode(_:string:)-6g64f``.
+To decode Swift values from a Markdown string use ``MarkDecoder/decode(_:from:)-17h8g``.
 
 Let's assume you have a string containing the following text:
 
@@ -71,5 +71,5 @@ Let's assume you have a string containing the following text:
 Decode the house values from that Markdown by using ``MarkDecoder``:
 
 ```swift
-let houses = try MarkDecoder().decode([House].self, string: markdown)
+let houses = try MarkDecoder().decode([House].self, from: markdown)
 ```
