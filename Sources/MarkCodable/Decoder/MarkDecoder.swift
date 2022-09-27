@@ -66,28 +66,22 @@ private extension MarkDecoder {
             throw MarkDecodingError.unexpectedSourceFormat("No markdown table element found")
         }
 
-        // Load the keys
+        // Load the keys.
         let keys = Array(table.head.cells.map(\.plainText))
         let keyToIndex = keys.reduce(into: [String: Int]()) { partialResult, key in
             partialResult[key] = keys.firstIndex(of: key)!
         }
 
-        // Load the values
-        let values: [CodingValues] = table.body.rows.prefix(numberResults).map { row in
-            let cells = Array(row.cells)
-            return keys.reduce(into: CodingValues()) { partialResult, key in
-                partialResult[key] = cells[keyToIndex[key]!].plainText
+        // Parse the table rows and return the results.
+        return try table.body.rows
+            .prefix(numberResults)
+            .map { row in
+                let cells = Array(row.cells)
+                let rowValues = keys.reduce(into: CodingValues()) { partialResult, key in
+                    partialResult[key] = cells[keyToIndex[key]!].plainText
+                }
+                return try T.init(from: MarkDecoding(userInfo: userInfo, from: rowValues))
             }
-        }
-
-        guard !values.isEmpty else {
-            throw DecodingError.dataCorrupted(DecodingError.Context(codingPath: [], debugDescription: "No decodable data found"))
-        }
-
-        return try values.prefix(numberResults).map { value in
-            let markDecoding = MarkDecoding(userInfo: userInfo, from: value)
-            return try T.init(from: markDecoding)
-        }
     }
 }
 
