@@ -597,4 +597,80 @@ final class MarkCoderTests: XCTestCase {
         // The exact representation as text might vary, testing only the roundtrip
         XCTAssertEqual(test, try decoder.decode(TestDictionary.self, from: result))
     }
+
+    func testDeepNestedContainers() throws {
+        struct First: Codable {
+            struct Second: Codable {
+                let name: String
+                let third: Third
+                struct Third: Codable {
+                    let name: String
+                    let fourth: Fourth
+                    struct Fourth: Codable {
+                        let name: String
+                    }
+                }
+            }
+            let name: String
+            let second: Second
+        }
+
+        let model = First(
+            name: "first",
+            second: First.Second(
+                name: "second",
+                third: First.Second.Third(
+                    name: "third",
+                    fourth: First.Second.Third.Fourth(name: "fourth")
+                )
+            )
+        )
+
+        let markdown = """
+        |name |second.name|second.third.fourth.name|second.third.name|
+        |-----|-----------|------------------------|-----------------|
+        |first|second     |fourth                  |third            |
+        """
+
+        XCTAssertEqual(markdown, try MarkEncoder().encode(model))
+    }
+
+    func testNestedKeyedContainerInListThrows() throws {
+        struct First: Codable {
+            struct Second: Codable {
+                let id: Int
+                let name: String
+            }
+
+            let ints: [Int]
+            let list: [Second]
+        }
+
+        let model = First(
+            ints: [1],
+            list: [.init(id: 3, name: "name3")]
+        )
+
+        XCTAssertThrowsError(try MarkEncoder().encode(model), "Didn't throw for nested keyed containers in a list") { error in
+            guard case MarkEncoder.MarkEncodingError.unsupportedNestedContainer = error else {
+                return XCTFail("Threw an unexpected \(error) while encoding")
+            }
+        }
+    }
+
+    func testNestedUnkeyedContainerInListThrows() throws {
+        struct First: Codable {
+            let ints: [[Int]]
+        }
+
+        let model = First(
+            ints: [[1]]
+        )
+
+        XCTAssertThrowsError(try MarkEncoder().encode(model), "Didn't throw for nested unkeyed containers in a list") { error in
+            guard case MarkEncoder.MarkEncodingError.unsupportedNestedContainer = error else {
+                return XCTFail("Threw an unexpected \(error) while encoding")
+            }
+        }
+    }
 }

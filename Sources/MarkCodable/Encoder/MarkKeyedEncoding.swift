@@ -3,13 +3,14 @@
 import Foundation
 
 struct MarkKeyedEncoding<Key: CodingKey>: KeyedEncodingContainerProtocol {
+    var breadcrumb: CodingBreadcrumb
+    var codingPath: CodingPath { breadcrumb.codingPath }
 
-    private(set) var codingPath: CodingPath
     var userInfo = UserInfo()
     private let data: CodingData
 
-    init(codingPath: CodingPath = [], userInfo: UserInfo, to data: CodingData) {
-        self.codingPath = codingPath
+    init(breadcrumb: CodingBreadcrumb = .empty, userInfo: UserInfo, to data: CodingData) {
+        self.breadcrumb = breadcrumb
         self.userInfo = userInfo
         self.data = data
     }
@@ -32,20 +33,20 @@ struct MarkKeyedEncoding<Key: CodingKey>: KeyedEncodingContainerProtocol {
     }
 
     mutating func encodeNil(forKey key: Key) throws {
-        data.encode(key: codingPath + [key], value: "")
+        try data.encode(breadcrumb: breadcrumb.addingKey(key), value: "")
     }
 
     mutating func encode<T: Encodable & StringInitializable>(_ value: T, forKey key: Key) throws {
-        data.encode(key: codingPath + [key], value: String(describing: value))
+        try data.encode(breadcrumb: breadcrumb.addingKey(key), value: String(describing: value))
     }
 
     mutating func encode<T: Encodable>(_ value: T, forKey key: Key) throws {
-        let markEncoding = MarkEncoding(codingPath: codingPath + [key], userInfo: userInfo, to: data)
+        let markEncoding = MarkEncoding(breadcrumb: breadcrumb.addingKey(key), userInfo: userInfo, to: data)
 
         switch value {
         case let url as URL:
             // Encode URLs as plain absolute URLs
-            data.encode(key: codingPath + [key], value: url.absoluteString)
+            try data.encode(breadcrumb: markEncoding.breadcrumb, value: url.absoluteString)
         default:
             try value.encode(to: markEncoding)
         }
@@ -55,7 +56,7 @@ struct MarkKeyedEncoding<Key: CodingKey>: KeyedEncodingContainerProtocol {
         keyedBy keyType: NestedKey.Type,
         forKey key: Key
     ) -> KeyedEncodingContainer<NestedKey> {
-        let container = MarkKeyedEncoding<NestedKey>(codingPath: codingPath + [key], userInfo: userInfo, to: data)
+        let container = MarkKeyedEncoding<NestedKey>(breadcrumb: breadcrumb.addingKey(key), userInfo: userInfo, to: data)
         // Track nested containers, as part as a failsafe against enums.
         data.addTrackedKey((codingPath + [key]).absoluteString)
         
@@ -63,7 +64,7 @@ struct MarkKeyedEncoding<Key: CodingKey>: KeyedEncodingContainerProtocol {
     }
 
     mutating func nestedUnkeyedContainer(forKey key: Key) -> UnkeyedEncodingContainer {
-        return MarkUnkeyedEncoding(codingPath: codingPath + [key], userInfo: userInfo, to: data)
+        return MarkUnkeyedEncoding(breadcrumb: breadcrumb.addingKey(key), userInfo: userInfo, to: data)
     }
 
     mutating func superEncoder() -> Encoder {
@@ -72,6 +73,6 @@ struct MarkKeyedEncoding<Key: CodingKey>: KeyedEncodingContainerProtocol {
     }
 
     mutating func superEncoder(forKey key: Key) -> Encoder {
-        return MarkEncoding(codingPath: codingPath + [key], userInfo: userInfo, to: data)
+        return MarkEncoding(breadcrumb: breadcrumb.addingKey(key), userInfo: userInfo, to: data)
     }
 }

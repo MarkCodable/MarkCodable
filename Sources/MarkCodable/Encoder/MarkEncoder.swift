@@ -23,6 +23,7 @@ public class MarkEncoder {
     /// Markdown encoding errors.
     public enum MarkEncodingError: Error {
         case unsupportedValue(String)
+        case unsupportedNestedContainer(String)
     }
 
     /// Any user info to pass along to encoding containers.
@@ -41,7 +42,7 @@ public class MarkEncoder {
         var uniqueKeys = Set<String>()
         
         for value in collection {
-            let encoding = MarkEncoding(codingPath: [], userInfo: userInfo, to: .init())
+            let encoding = MarkEncoding(breadcrumb: .empty, userInfo: userInfo, to: .empty)
             try value.encode(to: encoding)
             uniqueKeys = uniqueKeys.union(encoding.data.values.keys)
             values.append(encoding.data.values)
@@ -79,7 +80,7 @@ public class MarkEncoder {
         var keys = [String]()
         var values = [CodingValues]()
         
-        let encoding = MarkEncoding(codingPath: [], userInfo: userInfo, to: .init())
+        let encoding = MarkEncoding(breadcrumb: .empty, userInfo: userInfo, to: .empty)
         try value.encode(to: encoding)
 
         // Throws in case not all walked nested container keys ended up encoding values.
