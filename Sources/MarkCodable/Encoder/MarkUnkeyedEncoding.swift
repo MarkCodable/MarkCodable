@@ -3,30 +3,31 @@
 import Foundation
 
 struct MarkUnkeyedEncoding: UnkeyedEncodingContainer {
-    private(set) var codingPath: CodingPath
+    var breadcrumb: CodingBreadcrumb
+    var codingPath: CodingPath { breadcrumb.codingPath }
+
     var userInfo = UserInfo()
     private(set) var data = CodingData()
 
     var count: Int { data.values.count }
-    //var key: CodingKey { IndexCodingKey(intValue: count)! }
 
-    init(codingPath: CodingPath, userInfo: UserInfo, to data: CodingData) {
-        self.codingPath = codingPath
+    init(breadcrumb: CodingBreadcrumb, userInfo: UserInfo, to data: CodingData) {
+        self.breadcrumb = breadcrumb
         self.userInfo = userInfo
         self.data = data
     }
 
     mutating func encodeNil() throws {
-        data.encode(key: codingPath, value: "nil")
+        try data.encode(breadcrumb: breadcrumb.addingKey(IndexCodingKey(count)), value: "nil")
     }
 
     mutating func encode<T>(_ value: T) throws where T : Encodable {
-        let markEncoding = MarkEncoding(codingPath: codingPath, userInfo: userInfo, to: data)
+        let markEncoding = MarkEncoding(breadcrumb: breadcrumb.addingKey(IndexCodingKey(count)), userInfo: userInfo, to: data)
 
         switch value {
         case let url as URL:
             // Encode URLs as plain absolute URLs
-            data.encode(key: codingPath, value: url.absoluteString, appending: true)
+            try data.encode(breadcrumb: breadcrumb, value: url.absoluteString, appending: true)
         default:
             data.isAppendingContainer.push(true)
             defer { data.isAppendingContainer.pop() }
@@ -46,6 +47,18 @@ struct MarkUnkeyedEncoding: UnkeyedEncodingContainer {
     }
 
     mutating func superEncoder() -> Encoder {
-        MarkEncoding(codingPath: codingPath, userInfo: userInfo, to: data)
+        return MarkEncoding(breadcrumb: breadcrumb, userInfo: userInfo, to: data)
+    }
+}
+
+struct IndexCodingKey: CodingKey {
+    init?(stringValue: String) { fatalError() }
+    init?(intValue: Int) { fatalError() }
+
+    var intValue: Int?
+    var stringValue: String { String(intValue!) }
+
+    init(_ index: Int) {
+        intValue = index
     }
 }
