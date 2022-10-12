@@ -47,7 +47,14 @@ struct MarkKeyedDecoding<Key: CodingKey>: KeyedDecodingContainerProtocol {
         }
 
         let decoding = MarkDecoding(codingPath: [key], userInfo: userInfo, from: nestedData)
-        let decodedValue = try T.init(from: decoding)
+        let decodedValue: T
+
+        do {
+            decodedValue = try T.init(from: decoding)
+        } catch MarkDecoder.MarkDecodingControlFlow.representationForNil {
+            // The nil value was represented as text
+            return nil
+        }
 
         // Optional collection cells that are empty decode as empty collections, e.g. `[]`. We rather want `nil` instead.
         if let collectionDecodable = decodedValue as? DecodableCollection,

@@ -35,6 +35,10 @@ public class MarkDecoder {
         case unsupportedFormat(String)
     }
 
+    enum MarkDecodingControlFlow: Error {
+        case representationForNil
+    }
+
     /// Decodes Markdown to a collection of same-type items.
     ///
     /// The method throws if `string` isn't in the expected Markdown format or any of the values cannot be decoded into its expected data type.
