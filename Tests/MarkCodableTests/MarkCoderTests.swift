@@ -102,6 +102,44 @@ final class MarkCoderTests: XCTestCase {
         XCTAssertEqual(decoded4, [optional])
     }
 
+    func testCodingCGFloat() throws {
+        let encoder = MarkEncoder()
+        let decoder = MarkDecoder()
+
+        struct Test: Codable, Equatable {
+            var float: CGFloat?
+        }
+
+        // Optional nil value
+        let encoded = try encoder.encode([Test()])
+        let decoded = try decoder.decode([Test].self, from: encoded)
+        XCTAssertEqual(decoded, [Test()])
+
+        // Non-optional nil value
+        let encoded2 = try encoder.encode([Test(float: 1.0)])
+        let decoded2 = try decoder.decode([Test].self, from: encoded2)
+        XCTAssertEqual(decoded2, [Test(float: 1.0)])
+    }
+
+    func testCodingMixedOptionalValues() throws {
+        let encoder = MarkEncoder()
+        let decoder = MarkDecoder()
+
+        let house1 = OptionalHouse(isNewlyBuilt: true, name: "Supervilla", numberFloors: 3, streetNumber: 10)
+        let house2 = OptionalHouse(name: "Void")
+
+        let encoded1 = try encoder.encode([house2, house1])
+        XCTAssertEqual(encoded1, """
+        |isNewlyBuilt|name      |numberFloors|streetNumber|
+        |------------|----------|------------|------------|
+        |            |Void      |            |            |
+        |true        |Supervilla|3           |10          |
+        """)
+
+        let decoded1 = try decoder.decode([OptionalHouse].self, from: encoded1)
+        XCTAssertEqual(decoded1, [house2, house1])
+    }
+
     func testOptionalEncodingKeysDefaultTypes() throws {
         let encoder = MarkEncoder()
         let decoder = MarkDecoder()

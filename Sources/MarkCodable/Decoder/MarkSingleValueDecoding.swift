@@ -37,6 +37,9 @@ struct MarkSingleValueDecoding: SingleValueDecodingContainer {
 
     private func unbox<T: Decodable & StringInitializable>() throws -> T {
         guard let result = T(value) else {
+            guard !value.isEmpty else {
+                throw MarkDecoder.MarkDecodingControlFlow.representationForNil
+            }
             throw DecodingError.typeMismatch(T.self, DecodingError.Context(codingPath: codingPath, debugDescription: "Expected \(T.self) value at \(codingPath)"))
         }
         return result
