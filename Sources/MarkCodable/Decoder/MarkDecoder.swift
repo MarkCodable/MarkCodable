@@ -15,7 +15,7 @@ import Markdown
 /// ```
 /// > Note: The table might not be pretty formatted as long as its valid markdown, i.e. the pipes don't need to align vertically.
 ///
-/// Use ``decode(_:from:)-4ek7u`` to decode one or more values:
+/// Use ``decode(_:from:)`` to decode one or more values:
 ///
 /// ```swift
 /// let decoder = MarkDecoder()
